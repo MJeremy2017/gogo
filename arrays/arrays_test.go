@@ -24,3 +24,26 @@ func TestSumAll(t *testing.T) {
 		t.Errorf("Expect %d got %d", want, got)
 	}
 }
+
+func TestSumAllTails(t *testing.T) {
+	assertEqual := func(t testing.TB, got []int, want []int) {
+		t.Helper()
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("Expect %d got %d", want, got)
+		}
+	}
+
+	t.Run("general test", func(t *testing.T) {
+		got := SumAllTails([]int{1, 2, 3}, []int{0, 2})
+		want := []int{5, 2}
+		assertEqual(t, got, want)
+
+	})
+
+	t.Run("test empty slice", func(t *testing.T) {
+		got := SumAllTails([]int{1, 2, 3}, []int{})
+		want := []int{5, 0}
+		assertEqual(t, got, want)
+	})
+
+}
