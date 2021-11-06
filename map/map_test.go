@@ -25,10 +25,70 @@ func TestSearch(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	dict := Dictionary{}
-	dict.Add("test", "this is a test")
-	got, err := dict.Search("test")
-	want := "this is a test"
+	t.Run("Add new word", func(t *testing.T) {
+		dict := Dictionary{}
+		key := "test"
+		value := "this is a test"
+		dict.Add(key, value)
+		assertDefinition(t, dict, key, value)
+	})
+
+	t.Run("Add existing word", func(t *testing.T) {
+		dict := Dictionary{}
+		key := "test"
+		value := "this is a test"
+		dict[key] = value
+		err := dict.Add(key, value)
+
+		assertError(t, err, ErrKeyExisted)
+		assertDefinition(t, dict, key, value)
+	})
+	
+}
+
+func TestUpdate(t *testing.T) {
+	t.Run("Update existing word", func(t *testing.T) {
+		dict := Dictionary{"test": "this is a test"}
+		key := "test"
+		newValue := "this an updated test"
+
+		err := dict.Update(key, newValue)
+		assertError(t, err, nil)
+		assertDefinition(t, dict, key, newValue)
+	})
+
+	t.Run("Update non-existing word", func(t *testing.T) {
+		dict := Dictionary{}
+		key := "test"
+		newValue := "this an updated test"
+
+		err := dict.Update(key, newValue)
+		assertError(t, err, ErrKeyNotFound)
+	})
+}
+
+func TestDelete(t *testing.T) {
+	t.Run("Delete existing word", func(t *testing.T) {
+		dict := Dictionary{"test": "this is a test"}
+		key := "test"
+		err := dict.Delete(key)
+		assertError(t, err, nil)
+		_, err2 := dict.Search(key)
+		assertError(t, err2, ErrKeyNotFound)
+	})
+
+	t.Run("Delete non-existing word", func(t *testing.T) {
+		dict := Dictionary{}
+		key := "test"
+		err := dict.Delete(key)
+		assertError(t, err, ErrKeyNotFound)
+	})
+
+}
+
+func assertDefinition(t testing.TB, dict Dictionary, key string, value string) {
+	got, err := dict.Search(key)
+	want := value
 	if err != nil {
 		t.Fatal("Does not expect an error! error:\n", err)
 	}
