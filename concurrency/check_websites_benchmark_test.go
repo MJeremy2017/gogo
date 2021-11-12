@@ -20,4 +20,5 @@ func BenchmarkCheckWebsites(b *testing.B) {
 		// only inside is the function to be tested
 		CheckWebsites(slowStubWebsiteChecker, urls)
 	}
+	
 }
