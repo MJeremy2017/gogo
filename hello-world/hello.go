@@ -2,6 +2,16 @@ package main
 
 import "fmt"
 
+type ST struct {
+	name string
+	arr []string
+}
+
+func modify(val ST) {
+	val.name = "updated"
+	val.arr[0] = "updated"
+}
+
 func Hello(name string, language string) string {
 	if name == "" {
 		name = "World"
@@ -30,4 +40,14 @@ func greetingPrefix(language string) string {
 
 func main() {
 	fmt.Println(Hello("World", ""))
+
+	st := ST{
+		name: "Alfred",
+		arr: []string{"Alfred"},
+	}
+
+	fmt.Printf("before %v\n", st)
+	// only the copy of address of the arr is passed in
+	modify(st)
+	fmt.Printf("after %v", st)
 }
