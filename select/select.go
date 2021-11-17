@@ -6,7 +6,13 @@ import (
 	"fmt"
 )
 
-func Racer(url1 string, url2 string, timeout time.Duration) (string, error) {
+const tenSecondTimeout = time.Duration(10 * time.Second)
+
+func Racer(url1 string, url2 string) (string, error) {
+	return ConfigurableRacer(url1, url2, tenSecondTimeout)
+}
+
+func ConfigurableRacer(url1 string, url2 string, timeout time.Duration) (string, error) {
 	// select wait on multiple channels and the first one wins
 	select {
 	case <-ping(url1):
@@ -18,6 +24,7 @@ func Racer(url1 string, url2 string, timeout time.Duration) (string, error) {
 	}
 
 }
+
 
 
 func Racer2(url1 string, url2 string) string {
