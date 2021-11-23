@@ -6,11 +6,16 @@ import (
 	"testing"
 	"time"
 	"context"
+	"errors"
 )
 
 type SpyStore struct {
 	response string
 	t testing.TB
+}
+
+type SpyRespnseWriter struct {
+	written bool
 }
 
 func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
@@ -32,6 +37,7 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 		data <- result
 	}()
 
+
 	select {
 	case <-ctx.Done():
 		return "", ctx.Err()
@@ -39,6 +45,20 @@ func (s *SpyStore) Fetch(ctx context.Context) (string, error) {
 		return res, nil
 	}
 
+}
+
+func (s *SpyRespnseWriter) Header() http.Header {
+	s.written = true
+	return nil
+}
+
+func (s *SpyRespnseWriter) Write([]byte) (int, error) {
+	s.written = true
+	return 0, errors.New("not implemented")
+}
+
+func (s *SpyRespnseWriter) WriteHeader(statusCode int) {
+	s.written = true
 }
 
 
@@ -71,11 +91,14 @@ func TestServer(t *testing.T) {
 		// add cancelling context to request
 		request = request.WithContext(cancellingCtx)
 
-		response := httptest.NewRecorder()
+		response := &SpyRespnseWriter{}
 		svr.ServeHTTP(response, request)
 
-		// stub.assertCancelled()
+		if response.written {
+			t.Error("a response should not be written")
+		}
 
 	})
 
 }
+
