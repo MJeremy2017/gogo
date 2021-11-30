@@ -8,8 +8,8 @@ import (
 
 const (
 	secondHandLength = 90
-	clockCentreX     = 150
-	clockCentreY     = 150
+	clockCenterX     = 150
+	clockCenterY     = 150
 )
 
 //SVGWriter writes an SVG representation of an analogue clock, showing the time t, to the writer w.
@@ -24,7 +24,7 @@ func secondHand(w io.Writer, t time.Time) {
 	p := secondHandPoint(t)
 	p = Point{p.X * secondHandLength, p.Y * secondHandLength}
 	p = Point{p.X, -p.Y}
-	p = Point{p.X + clockCentreX, p.Y + clockCentreY} //translate
+	p = Point{p.X + clockCenterX, p.Y + clockCenterY} //translate
 	fmt.Fprintf(w, `<line x1="150" y1="150" x2="%.3f" y2="%.3f" style="fill:none;stroke:#f00;stroke-width:3px;"/>`, p.X, p.Y)
 }
 
