@@ -6,7 +6,6 @@ import (
 )
 
 
-// A Point represents a two dimensional Cartesian coordinate.
 type Point struct {
 	X float64
 	Y float64
@@ -16,14 +15,17 @@ type Point struct {
 // represented as a Point.
 func SecondHand(t time.Time) Point {
 	p := secondHandPoint(t)
-	p = Point{clockCenterX + secondHandLength * p.X, clockCenterY - secondHandLength * p.Y}
-	return p
+	return makeHand(p, secondHandLength)
 }
 
 func MinuteHand(t time.Time) Point {
 	p := minuteHandPoint(t)
-	p = Point{clockCenterX + minuteHandLength * p.X, clockCenterY - minuteHandLength * p.Y}
-	return p
+	return makeHand(p, minuteHandLength)
+}
+
+func HourHand(t time.Time) Point {
+	p := hourHandPoint(t)
+	return makeHand(p, hourHandLength)
 }
 
 func makeHand(p Point, length float64) Point {
@@ -53,6 +55,11 @@ func secondHandPoint(t time.Time) Point {
 
 func minuteHandPoint(t time.Time) Point {
 	radian := minutesInRadians(t)
+	return angleToPoint(radian)
+}
+
+func hourHandPoint(t time.Time) Point {
+	radian := hoursInRadians(t)
 	return angleToPoint(radian)
 }
 
