@@ -4,14 +4,22 @@ import (
 	"testing"
 	"testing/fstest"
 	"blogposts"
+	"reflect"
 )
 
 
 func TestNewBlogPosts(t *testing.T) {
+	// both string and `` works
+	const (
+		firstBody = "Title: Post1\nDescription: Description1"
+		secondBody = `Title: Post2
+		Description: Description2`
+	)
+
 	// file path -> meta data
 	fs := fstest.MapFS{
-		"hello world.md": {Data: []byte("Title: Post1")},
-		"hello world2.md": {Data: []byte("Title: Post2")},
+		"hello world.md": {Data: []byte(firstBody)},
+		"hello world2.md": {Data: []byte(secondBody)},
 	}
 
 	posts, err := blogposts.NewPostsFromFS(fs)
@@ -26,9 +34,14 @@ func TestNewBlogPosts(t *testing.T) {
 
 	// test content matches
 	got := posts[0]
-	want := blogposts.Post{Title: "Post1"}
+	want := blogposts.Post{Title: "Post1", Description: "Description1"}
+	assertPost(t, got, want)
 
-	if got != want {
-		t.Errorf("got %+v want %+v", got, want)
+}
+
+func assertPost(t *testing.T, got blogposts.Post, want blogposts.Post) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %+v, want %+v", got, want)
 	}
 }
