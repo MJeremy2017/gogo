@@ -9,11 +9,40 @@ import (
 
 
 func TestNewBlogPosts(t *testing.T) {
+	wants := []blogposts.Post{
+	blogposts.Post{
+		Title: "Post1", 
+		Description: "Description1",
+		Tags: []string{"tdd", "go"},
+		Body: `Hello
+World!`,
+	},
+	blogposts.Post{
+		Title: "Post2", 
+		Description: "Description2",
+		Tags: []string{"rust", "borrow-checker"},
+		Body: `B
+L
+M`,
+	},
+}
 	// both string and `` works
 	const (
-		firstBody = "Title: Post1\nDescription: Description1"
+		firstBody = `Title: Post1
+Description: Description1
+Tags: tdd, go
+---
+Hello
+World!
+`
 		secondBody = `Title: Post2
-		Description: Description2`
+Description: Description2
+Tags: rust, borrow-checker
+---
+B
+L
+M
+`
 	)
 
 	// file path -> meta data
@@ -33,9 +62,11 @@ func TestNewBlogPosts(t *testing.T) {
 	}
 
 	// test content matches
-	got := posts[0]
-	want := blogposts.Post{Title: "Post1", Description: "Description1"}
-	assertPost(t, got, want)
+	for i := 0; i < len(posts); i++ {
+		got := posts[i]
+		want := wants[i]
+		assertPost(t, got, want)
+	}
 
 }
 

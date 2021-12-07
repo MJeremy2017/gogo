@@ -5,16 +5,21 @@ import (
 	"io"
 	"bufio"
 	"strings"
+	"fmt"
+	"bytes"
 )
 
 type Post struct {
-	Title string
+	Title 		string
 	Description string
+	Tags 		[]string
+	Body 		string
 }
 
 const (
 	titleSeparator = "Title: "
 	descriptionSeparator = "Description: "
+	tagsSeparator = "Tags: "
 )
 
 
@@ -56,7 +61,22 @@ func newPost(postFile io.Reader) (Post, error) {
 	}
 	title := readLine(titleSeparator)
 	description := readLine(descriptionSeparator)
+	tags := strings.Split(readLine(tagsSeparator), ", ")
 
-	post := Post{Title: title, Description: description}
+	scanner.Scan() // skip one line
+
+	buf := bytes.Buffer{}
+	for scanner.Scan() {
+		fmt.Fprintln(&buf, scanner.Text())
+	}
+	body := strings.TrimSuffix(buf.String(), "\n")
+
+	post := Post{
+		Title: title, 
+		Description: description, 
+		Tags: tags,
+		Body: body,
+	}
 	return post, nil
 }
+
