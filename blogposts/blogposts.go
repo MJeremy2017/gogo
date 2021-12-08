@@ -62,14 +62,7 @@ func newPost(postFile io.Reader) (Post, error) {
 	title := readLine(titleSeparator)
 	description := readLine(descriptionSeparator)
 	tags := strings.Split(readLine(tagsSeparator), ", ")
-
-	scanner.Scan() // skip one line
-
-	buf := bytes.Buffer{}
-	for scanner.Scan() {
-		fmt.Fprintln(&buf, scanner.Text())
-	}
-	body := strings.TrimSuffix(buf.String(), "\n")
+	body := readBody(scanner)
 
 	post := Post{
 		Title: title, 
@@ -79,4 +72,16 @@ func newPost(postFile io.Reader) (Post, error) {
 	}
 	return post, nil
 }
+
+func readBody(scanner *bufio.Scanner) string {
+	scanner.Scan() // skip one line
+	buf := bytes.Buffer{}
+	for scanner.Scan() {
+		fmt.Fprintln(&buf, scanner.Text())
+	}
+
+	return strings.TrimSuffix(buf.String(), "\n")
+}
+
+
 
