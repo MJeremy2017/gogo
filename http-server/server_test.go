@@ -109,6 +109,23 @@ func TestRecordingWinsAndRetrivingThem(t *testing.T) {
 	assertBodyEqual(t, response.Body.String(), "3")
 }
 
+
+func TestLeague(t *testing.T) {
+	stub := &StubPlayerStore{}
+	server := &PlayerServer{stubPlayerScore}
+
+	t.Run("returns 200 on /league", func(t *testing.T) {
+		request := newGetLeagueRequest()
+		response := httptest.NewRecorder()
+
+		server.ServeHTTP(response, request)
+
+		assertStatus(t, response.Code, http.StatusOK)
+	})
+
+}
+
+
 func assertStatus(t testing.TB, got, want int) {
 	t.Helper()
 	if got != want {
@@ -121,6 +138,13 @@ func newPostWinRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
 	return req
 }
+
+
+func newGetLeagueRequest() *http.Request {
+	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/league"), nil)
+	return req
+}
+
 
 func newGetScoreRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", name), nil)

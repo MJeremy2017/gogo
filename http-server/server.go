@@ -13,6 +13,7 @@ type PlayerStore interface {
 	RecordWin(name string)
 }
 
+// server takes in a player store interface
 type PlayerServer struct {
 	store PlayerStore
 }
