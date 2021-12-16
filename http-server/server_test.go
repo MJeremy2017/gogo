@@ -22,7 +22,6 @@ func (s *StubPlayerStore) RecordWin(name string) {
 }
 
 
-
 func TestGETPlayers(t *testing.T) {
 	stubPlayerScore := &StubPlayerStore{
 		map[string]int{
