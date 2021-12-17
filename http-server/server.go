@@ -5,12 +5,15 @@ import (
 	"net/http"
 	"strings"
 	"strconv"
+	"encoding/json"
 )
 
 type PlayerStore interface {
 	GetPlayerScore(player string) int
 
 	RecordWin(name string)
+
+	GetLeague() []Player
 }
 
 // server takes in a player store interface
@@ -35,6 +38,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(p.store.GetLeague())
 	w.WriteHeader(http.StatusOK)
 }
 

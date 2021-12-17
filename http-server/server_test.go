@@ -5,12 +5,16 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"fmt"
+	"reflect"
+	"encoding/json"
+	"io"
 )
 
 
 type StubPlayerStore struct {
 	scores map[string]int
 	winCalls []string
+	league []Player
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) int {
@@ -21,6 +25,10 @@ func (s *StubPlayerStore) RecordWin(name string) {
 	s.winCalls = append(s.winCalls, name)
 }
 
+func (s *StubPlayerStore) GetLeague() []Player {
+	return s.league
+}
+
 
 func TestGETPlayers(t *testing.T) {
 	stubPlayerScore := &StubPlayerStore{
@@ -28,6 +36,7 @@ func TestGETPlayers(t *testing.T) {
 			"Pepper": 20,
 			"Floyd": 10,
 		},
+		nil,
 		nil,
 	}
 	server := NewPlayerServer(stubPlayerScore)
@@ -70,6 +79,7 @@ func TestStoreWins(t *testing.T) {
 	stub := &StubPlayerStore{
 		map[string]int{},
 		nil,
+		nil,
 	}
 	server := NewPlayerServer(stub)
 	
@@ -110,18 +120,34 @@ func TestRecordingWinsAndRetrivingThem(t *testing.T) {
 
 
 func TestLeague(t *testing.T) {
-	stub := &StubPlayerStore{}
-	server := NewPlayerServer(stub)
+	t.Run("returns json on /league", func(t *testing.T) {
+		wantedLeague := []Player{
+			{"Cleo", 22},
+			{"Chris", 13},
+			{"Neo", 31},
+		}
 
-	t.Run("returns 200 on /league", func(t *testing.T) {
+		stub := &StubPlayerStore{nil, nil, wantedLeague}
+		server := NewPlayerServer(stub)
+
 		request := newGetLeagueRequest()
 		response := httptest.NewRecorder()
 
 		server.ServeHTTP(response, request)
 
+		got := getLeagueFromResponse(t, response.Body)
 		assertStatus(t, response.Code, http.StatusOK)
+		assertLeague(t, got, wantedLeague)
 	})
+}
 
+func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
+	t.Helper()
+	err := json.NewDecoder(body).Decode(&league)
+	if err != nil {
+		t.Fatalf("Unable to parse response body %q to player, '%v'", body, err)
+	}
+	return
 }
 
 
@@ -131,6 +157,12 @@ func assertStatus(t testing.TB, got, want int) {
 		t.Errorf("got status %d want %d", got, want)
 	}
 
+}
+
+func assertLeague(t testing.TB, got, want []Player) {
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v want %v", got, want)
+	}
 }
 
 func newPostWinRequest(name string) *http.Request {
