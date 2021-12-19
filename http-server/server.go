@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 )
 
+const jsonContentType = "application/json"
+
 type PlayerStore interface {
 	GetPlayerScore(player string) int
 
@@ -25,7 +27,6 @@ type PlayerServer struct {
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
 	p := new(PlayerServer)
-
 	p.store = store
 
 	router := http.NewServeMux()
@@ -38,6 +39,7 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type", jsonContentType)
 	json.NewEncoder(w).Encode(p.store.GetLeague())
 	w.WriteHeader(http.StatusOK)
 }

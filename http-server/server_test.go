@@ -102,22 +102,6 @@ func TestStoreWins(t *testing.T) {
 	})
 }
 
-func TestRecordingWinsAndRetrivingThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
-	server := NewPlayerServer(store)
-	player := "Pepper"
-
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-	server.ServeHTTP(httptest.NewRecorder(), newPostWinRequest(player))
-
-	response := httptest.NewRecorder()
-	server.ServeHTTP(response, newGetScoreRequest(player))
-	assertStatus(t, response.Code, http.StatusOK)
-
-	assertBodyEqual(t, response.Body.String(), "3")
-}
-
 
 func TestLeague(t *testing.T) {
 	t.Run("returns json on /league", func(t *testing.T) {
@@ -135,11 +119,15 @@ func TestLeague(t *testing.T) {
 
 		server.ServeHTTP(response, request)
 
+		// assert header
+		assertContentType(t, response, jsonContentType)
+
 		got := getLeagueFromResponse(t, response.Body)
 		assertStatus(t, response.Code, http.StatusOK)
 		assertLeague(t, got, wantedLeague)
 	})
 }
+
 
 func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
 	t.Helper()
@@ -148,6 +136,15 @@ func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
 		t.Fatalf("Unable to parse response body %q to player, '%v'", body, err)
 	}
 	return
+}
+
+
+func assertContentType(t testing.TB, response *httptest.ResponseRecorder, want string) {
+	t.Helper()
+	if response.Result().Header.Get("content-type") != want {
+		t.Errorf("response did not have content-type application/json, got %v", 
+			response.Result().Header)
+	}
 }
 
 
