@@ -15,7 +15,7 @@ type PlayerStore interface {
 
 	RecordWin(name string)
 
-	GetLeague() []Player
+	GetLeague() League
 }
 
 // server takes in a player store interface
