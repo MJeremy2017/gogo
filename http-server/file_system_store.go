@@ -4,6 +4,7 @@ import (
 	"os"
 	"encoding/json"
 	"fmt"
+	"sort"
 )
 
 
@@ -14,7 +15,9 @@ type FileSystemPlayerStore struct {
 
 
 func (f *FileSystemPlayerStore) GetLeague() League {
-	// offset and whence
+	sort.Slice(f.league, func (i, j int) bool {
+		return f.league[i].Wins > f.league[j].Wins
+	})
 	return f.league
 }
 
@@ -52,7 +55,7 @@ func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
 	}
 
 	return &FileSystemPlayerStore{
-		database: json.NewEncoder(&tape{file}),
+		database: json.NewEncoder(tape{file}),
 		league: league,
 	}, nil
 }

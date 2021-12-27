@@ -9,8 +9,7 @@ import (
 
 
 func TestFileSystemStore(t *testing.T) {
-
-	t.Run("league from a reader", func(t *testing.T) {
+	t.Run("return sorted league", func(t *testing.T) {
 		data := `[
 			{"Name": "Cleo", "Wins": 10},
 			{"Name": "Chris", "Wins": 22}]`
@@ -21,15 +20,12 @@ func TestFileSystemStore(t *testing.T) {
 		store, err := NewFileSystemPlayerStore(database)
 		assertNoError(t, err)
 
+
 		got := store.GetLeague()
 		want := []Player{
-			{"Cleo", 10},
 			{"Chris", 22},
+			{"Cleo", 10},
 		}
-		assertLeague(t, got, want)
-
-		// read a second time
-		got = store.GetLeague()
 		assertLeague(t, got, want)
 	})
 
@@ -92,8 +88,6 @@ func TestFileSystemStore(t *testing.T) {
 		_, err := NewFileSystemPlayerStore(database)
 		assertNoError(t, err)
 	})
-
-
 }
 
 func createTempFile(t testing.TB, data string) (*os.File, func()) {
