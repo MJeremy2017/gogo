@@ -1,7 +1,11 @@
-package main
+package poker
 
 import "fmt"
 
+
+type Eat interface {
+	Eat() string
+}
 
 type Person struct {
 	Age int
@@ -16,12 +20,22 @@ func (p *Person) getAge() int {
 	return p.Age
 }
 
+func (p *Person) Eat() string {
+	return "shurush"
+}
+
+
+func Sample(eat Eat) {
+	fmt.Println(eat.Eat())
+}
 
 func main2() {
 	person := Person{
 		Age: 23,
 		Children: []int{12, 11, 1},
 	}
+
+	Sample(&person)
 
 	children := person.getChildren()
 	fmt.Printf("children before %v\n", children)
