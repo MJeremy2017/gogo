@@ -1,21 +1,19 @@
 package poker
 
 import (
-	"os"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 )
 
-
 type FileSystemPlayerStore struct {
 	database *json.Encoder
-	league League
+	league   League
 }
 
-
 func (f *FileSystemPlayerStore) GetLeague() League {
-	sort.Slice(f.league, func (i, j int) bool {
+	sort.Slice(f.league, func(i, j int) bool {
 		return f.league[i].Wins > f.league[j].Wins
 	})
 	return f.league
@@ -48,7 +46,7 @@ func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
 	if err != nil {
 		return nil, fmt.Errorf("problem initialising player db file, %v", err)
 	}
-	
+
 	league, err := NewLeague(file)
 	if err != nil {
 		return nil, fmt.Errorf("problem loading file from %s, %v", file.Name(), err)
@@ -56,7 +54,7 @@ func NewFileSystemPlayerStore(file *os.File) (*FileSystemPlayerStore, error) {
 
 	return &FileSystemPlayerStore{
 		database: json.NewEncoder(tape{file}),
-		league: league,
+		league:   league,
 	}, nil
 }
 
@@ -74,6 +72,3 @@ func initialisePlayerDBFile(file *os.File) error {
 
 	return nil
 }
-
-
-

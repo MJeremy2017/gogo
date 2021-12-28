@@ -1,19 +1,18 @@
 package poker
 
 import (
-	"testing"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"fmt"
 	"reflect"
-	"io"
+	"testing"
 )
 
-
 type StubPlayerStore struct {
-	scores map[string]int
+	scores   map[string]int
 	winCalls []string
-	league []Player
+	league   []Player
 }
 
 func (s *StubPlayerStore) GetPlayerScore(name string) int {
@@ -28,12 +27,11 @@ func (s *StubPlayerStore) GetLeague() League {
 	return s.league
 }
 
-
 func TestGETPlayers(t *testing.T) {
 	stubPlayerScore := &StubPlayerStore{
 		map[string]int{
 			"Pepper": 20,
-			"Floyd": 10,
+			"Floyd":  10,
 		},
 		nil,
 		nil,
@@ -81,7 +79,7 @@ func TestStoreWins(t *testing.T) {
 		nil,
 	}
 	server := NewPlayerServer(stub)
-	
+
 	t.Run("records when post", func(t *testing.T) {
 		player := "Pepper"
 		request := newPostWinRequest(player)
@@ -100,7 +98,6 @@ func TestStoreWins(t *testing.T) {
 		}
 	})
 }
-
 
 func TestLeague(t *testing.T) {
 	t.Run("returns json on /league", func(t *testing.T) {
@@ -127,7 +124,6 @@ func TestLeague(t *testing.T) {
 	})
 }
 
-
 func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
 	t.Helper()
 	league, err := NewLeague(body)
@@ -137,15 +133,13 @@ func getLeagueFromResponse(t testing.TB, body io.Reader) (league []Player) {
 	return
 }
 
-
 func assertContentType(t testing.TB, response *httptest.ResponseRecorder, want string) {
 	t.Helper()
 	if response.Result().Header.Get("content-type") != want {
-		t.Errorf("response did not have content-type application/json, got %v", 
+		t.Errorf("response did not have content-type application/json, got %v",
 			response.Result().Header)
 	}
 }
-
 
 func assertStatus(t testing.TB, got, want int) {
 	t.Helper()
@@ -166,12 +160,10 @@ func newPostWinRequest(name string) *http.Request {
 	return req
 }
 
-
 func newGetLeagueRequest() *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/league"), nil)
 	return req
 }
-
 
 func newGetScoreRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/players/%s", name), nil)

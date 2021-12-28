@@ -1,8 +1,8 @@
 package poker
 
 import (
-	"testing"
 	"io/ioutil"
+	"testing"
 )
 
 func TestTape_Writer(t *testing.T) {

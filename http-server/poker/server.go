@@ -1,11 +1,11 @@
 package poker
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"strconv"
-	"encoding/json"
+	"strings"
 )
 
 const jsonContentType = "application/json"
@@ -20,10 +20,9 @@ type PlayerStore interface {
 
 // server takes in a player store interface
 type PlayerServer struct {
-	store PlayerStore
-	http.Handler  // embedding, now server can have Handler's methods
+	store        PlayerStore
+	http.Handler // embedding, now server can have Handler's methods
 }
-
 
 func NewPlayerServer(store PlayerStore) *PlayerServer {
 	p := new(PlayerServer)
@@ -37,13 +36,11 @@ func NewPlayerServer(store PlayerStore) *PlayerServer {
 	return p
 }
 
-
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", jsonContentType)
 	json.NewEncoder(w).Encode(p.store.GetLeague())
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func (p *PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
 	player := strings.TrimPrefix(r.URL.Path, "/players/")
@@ -55,13 +52,11 @@ func (p *PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func (p *PlayerServer) processWin(w http.ResponseWriter, player string) {
 	p.store.RecordWin(player)
 	w.WriteHeader(http.StatusAccepted)
 	return
 }
-
 
 func (p *PlayerServer) showScore(w http.ResponseWriter, player string) {
 	score := p.store.GetPlayerScore(player)

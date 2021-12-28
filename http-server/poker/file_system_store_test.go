@@ -1,12 +1,11 @@
 package poker
 
 import (
-	"testing"
 	"io/ioutil"
-	"os"
 	"log"
+	"os"
+	"testing"
 )
-
 
 func TestFileSystemStore(t *testing.T) {
 	t.Run("return sorted league", func(t *testing.T) {
@@ -19,7 +18,6 @@ func TestFileSystemStore(t *testing.T) {
 
 		store, err := NewFileSystemPlayerStore(database)
 		assertNoError(t, err)
-
 
 		got := store.GetLeague()
 		want := []Player{
@@ -120,4 +118,3 @@ func assertNoError(t testing.TB, err error) {
 		log.Fatalf("didn't expect error but got %v", err)
 	}
 }
-

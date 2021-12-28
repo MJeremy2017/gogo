@@ -2,10 +2,9 @@ package poker
 
 import (
 	"net/http"
-	"testing"
 	"net/http/httptest"
+	"testing"
 )
-
 
 func TestRecordingWinsAndRetrivingThem(t *testing.T) {
 	database, cleanDatabase := createTempFile(t, "[]")
