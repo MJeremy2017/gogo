@@ -11,6 +11,7 @@ import (
 const jsonContentType = "application/json"
 
 type PlayerStore interface {
+
 	GetPlayerScore(player string) int
 
 	RecordWin(name string)

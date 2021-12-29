@@ -155,6 +155,18 @@ func assertLeague(t testing.TB, got, want []Player) {
 	}
 }
 
+func assertPlayerWin(t testing.TB, store *StubPlayerStore, winner string) {
+	if len(store.winCalls) != 1 {
+		t.Fatalf("expected a win call but didn't get any")
+	}
+
+	got := store.winCalls[0]
+	want := winner
+	if got != want {
+		t.Errorf("want %q got %q", want, got)
+	}
+}
+
 func newPostWinRequest(name string) *http.Request {
 	req, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/players/%s", name), nil)
 	return req
