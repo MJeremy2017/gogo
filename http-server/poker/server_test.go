@@ -9,23 +9,6 @@ import (
 	"testing"
 )
 
-type StubPlayerStore struct {
-	scores   map[string]int
-	winCalls []string
-	league   []Player
-}
-
-func (s *StubPlayerStore) GetPlayerScore(name string) int {
-	return s.scores[name]
-}
-
-func (s *StubPlayerStore) RecordWin(name string) {
-	s.winCalls = append(s.winCalls, name)
-}
-
-func (s *StubPlayerStore) GetLeague() League {
-	return s.league
-}
 
 func TestGETPlayers(t *testing.T) {
 	stubPlayerScore := &StubPlayerStore{
@@ -152,18 +135,6 @@ func assertStatus(t testing.TB, got, want int) {
 func assertLeague(t testing.TB, got, want []Player) {
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
-	}
-}
-
-func assertPlayerWin(t testing.TB, store *StubPlayerStore, winner string) {
-	if len(store.winCalls) != 1 {
-		t.Fatalf("expected a win call but didn't get any")
-	}
-
-	got := store.winCalls[0]
-	want := winner
-	if got != want {
-		t.Errorf("want %q got %q", want, got)
 	}
 }
 
