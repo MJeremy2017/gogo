@@ -10,14 +10,12 @@ import (
 const dbFileName = "game.db.json"
 
 func main() {
-	db, err := os.OpenFile(dbFileName, os.O_RDWR|os.O_CREATE, 0666)
+	store, close, err := poker.FileSystemPlayerStoreFromFile(dbFileName)
 	if err != nil {
-		log.Fatalf("problem openning file %s %v", dbFileName, err)
+		log.Fatal(err)
 	}
-	store, err := poker.NewFileSystemPlayerStore(db)
-	if err != nil {
-		log.Fatalf("got error %v", err)
-	}
+	defer close()
+
 	server := poker.NewPlayerServer(store)
 	// handler := http.HandlerFunc(PlayerServer)  // cast into type HandlerFunc which has implemented serveHttp method already
 	log.Println("listen on port 5000")
