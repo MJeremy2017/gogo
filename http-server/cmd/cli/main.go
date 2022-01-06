@@ -10,7 +10,6 @@ import (
 const dbFileName = "game.db.json"
 
 func main() {
-
 	store, close, err := poker.FileSystemPlayerStoreFromFile(dbFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -19,5 +18,6 @@ func main() {
 
 	fmt.Println("Let's play poker")
 	fmt.Println("Type {Name} wins to record a win")
-	poker.NewCLI(store, os.Stdin).PlayPoker()
+	dummyAlerter := &poker.SpyBlindAlerter{}
+	poker.NewCLI(store, os.Stdin, dummyAlerter).PlayPoker()
 }
