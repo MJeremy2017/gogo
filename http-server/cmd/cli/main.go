@@ -5,6 +5,7 @@ import (
 	"os"
 	"log"
 	"server/poker"
+	"server/poker_test"
 )
 
 const dbFileName = "game.db.json"
@@ -18,6 +19,6 @@ func main() {
 
 	fmt.Println("Let's play poker")
 	fmt.Println("Type {Name} wins to record a win")
-	dummyAlerter := &poker.SpyBlindAlerter{}
+	dummyAlerter := &poker_test.SpyBlindAlerter{}
 	poker.NewCLI(store, os.Stdin, dummyAlerter).PlayPoker()
 }

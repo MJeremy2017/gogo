@@ -19,6 +19,15 @@ type BlindAlerter interface {
 }
 
 func (c *CLI) PlayPoker() {
+	blinds := []int{100, 200, 300, 400, 500, 600, 800, 
+	1000, 2000, 4000, 8000}
+	blindTime := 0 * time.Second
+
+	for _, blind := range blinds {
+		c.alerter.ScheduleAlertAt(blindTime, blind)
+		blindTime += 10 * time.Minute
+	}
+
 	input := c.readLine()
 
 	winner := extractWinner(input)
