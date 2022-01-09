@@ -9,10 +9,12 @@ import (
 	"fmt"
 )
 
+const PlayerPrompt = "Please enter the number of players: "
 
 type CLI struct {
 	store 	PlayerStore
 	in 		*bufio.Scanner
+	out 	io.Writer
 	alerter BlindAlerter
 }
 
@@ -36,6 +38,7 @@ func StdOutAlerter(duration time.Duration, amount int) {
 
 
 func (c *CLI) PlayPoker() {
+	fmt.Fprint(c.out, PlayerPrompt)
 	c.scheduleBlindAlerts()
 	input := c.readLine()
 
@@ -63,10 +66,11 @@ func extractWinner(userInput string) string {
 	return strings.Replace(userInput, " wins", "", 1)
 }
 
-func NewCLI(store PlayerStore, in io.Reader, alerter BlindAlerter) *CLI {
+func NewCLI(store PlayerStore, in io.Reader, out io.Writer, alerter BlindAlerter) *CLI {
 	return &CLI{
 		store: store,
 		in: bufio.NewScanner(in),
+		out: out,
 		alerter: alerter,
 	}
 }
