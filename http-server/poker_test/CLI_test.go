@@ -89,9 +89,11 @@ func TestCLI(t *testing.T) {
 		}
 	})
 
-	t.Run("it prompts the user to enter number of users", func(t *testing.T) {
+	t.Run("it prompts the user to enter the number of users", func(t *testing.T) {
 		stdOut := &bytes.Buffer{}
-		cli := poker.NewCLI(dummyPlayStore, dummyStdIn, stdOut, dummyAlerter)
+		in := strings.NewReader("7\n")
+		blindAlerter := &SpyBlindAlerter{}
+		cli := poker.NewCLI(dummyPlayStore, in, stdOut, blindAlerter)
 		cli.PlayPoker()
 
 		got := stdOut.String()
@@ -99,6 +101,24 @@ func TestCLI(t *testing.T) {
 
 		if got != want {
 			t.Errorf("got %q, want %q", got, want)
+		}
+
+		cases := []scheduledAlert{
+			{0 * time.Second, 100},
+            {12 * time.Minute, 200},
+            {24 * time.Minute, 300},
+            {36 * time.Minute, 400},
+		}
+
+		for i, want := range cases {
+			t.Run(fmt.Sprint(want), func(t *testing.T) {
+				if len(blindAlerter.alerts) <= i {
+					t.Fatalf("alert %d was not scheduled %v", i, blindAlerter.alerts)
+				}
+
+				got := blindAlerter.alerts[i]
+				assertScheduleAlert(t, got, want)
+			})
 		}
 	})
 
