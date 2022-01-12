@@ -29,7 +29,7 @@ func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
 
 
 var dummyAlerter = &SpyBlindAlerter{}
-var dummyPlayStore = &poker.StubPlayerStore{}
+var dummyPlayerStore = &poker.StubPlayerStore{}
 var dummyStdIn = &bytes.Buffer{}
 var dummyStdOut = &bytes.Buffer{}
 
@@ -97,7 +97,7 @@ func TestCLI(t *testing.T) {
 		in := strings.NewReader("7\n")
 		blindAlerter := &SpyBlindAlerter{}
 
-		game := poker.NewGame(blindAlerter, dummyPlayStore)
+		game := poker.NewGame(blindAlerter, dummyPlayerStore)
 
 		cli := poker.NewCLI(in, stdOut, game)
 		cli.PlayPoker()
@@ -131,6 +131,7 @@ func TestCLI(t *testing.T) {
 }
 
 func assertScheduleAlert(t testing.TB, got, want scheduledAlert) {
+	t.Helper()
 	if got.amount != want.amount {
 		t.Errorf("got amount %d, want %d", got.amount, want.amount)
 	}
