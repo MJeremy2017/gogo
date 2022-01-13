@@ -34,7 +34,6 @@ func (p *TexasHoldem) Finish(winner string) {
 	p.store.RecordWin(winner)
 }
 
-
 func NewGame(alerter BlindAlerter, store PlayerStore) Game {
 	return &TexasHoldem{
 		alerter: alerter,
