@@ -128,6 +128,18 @@ func TestCLI(t *testing.T) {
 
 	})
 
+	t.Run("it prompts user error and end the game when winner format is incorrect", func(t *testing.T) {
+		in := userSends("5", "Chris is a killer")
+		game := &GameSpy{}
+		stdOut := &bytes.Buffer{}
+
+		cli := poker.NewCLI(in, stdOut, game)
+		cli.PlayPoker()
+
+		assertGameStartedWith(t, game, 5)
+		assertMessageSentToUser(t, stdOut, poker.PlayerPrompt, poker.BadWinnerInputErrMsg)
+	})
+
 }
 
 func assertScheduleAlert(t testing.TB, got, want scheduledAlert) {

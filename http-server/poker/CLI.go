@@ -12,6 +12,8 @@ import (
 
 const PlayerPrompt = "Please enter the number of players: "
 const BadPlayerInputErrMsg = "Bad value received for number of players, please try again with a number"
+const BadWinnerInputErrMsg = "Bad value received for winner, please try again with {name} wins"
+const Win = "wins"
 
 
 type CLI struct {
@@ -52,6 +54,10 @@ func (c *CLI) PlayPoker() {
 
 	c.game.Start(numberOfPlayers)
 	winnerInput := c.readLine()
+	if !validateWinnerInput(winnerInput) {
+		fmt.Fprintf(c.out, BadWinnerInputErrMsg)
+		return
+	}
 
 	winner := extractWinner(winnerInput)
 	c.game.Finish(winner)
@@ -64,6 +70,14 @@ func (c *CLI) readLine() string {
 
 func extractWinner(userInput string) string {
 	return strings.Replace(userInput, " wins", "", 1)
+}
+
+func validateWinnerInput(winnerInput string) bool {
+	tail := winnerInput[(len(winnerInput) - len(Win)):]
+	if tail != Win {
+		return false
+	}
+	return true
 }
 
 func NewCLI(in io.Reader, out io.Writer, game Game) *CLI {
