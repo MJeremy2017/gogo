@@ -15,7 +15,7 @@ func main() {
 	}
 	defer close()
 
-	server := poker.NewPlayerServer(store)
+	server, _ := poker.NewPlayerServer(store)
 	// handler := http.HandlerFunc(PlayerServer)  // cast into type HandlerFunc which has implemented serveHttp method already
 	log.Println("listen on port 5000")
 	log.Fatal(http.ListenAndServe(":5000", server))
