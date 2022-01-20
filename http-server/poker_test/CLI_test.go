@@ -1,13 +1,13 @@
 package poker_test
 
 import (
+	"bytes"
+	"fmt"
+	"io"
 	"server/poker"
 	"strings"
 	"testing"
 	"time"
-	"bytes"
-	"io"
-	"fmt"
 )
 
 type SpyBlindAlerter struct {
@@ -16,40 +16,36 @@ type SpyBlindAlerter struct {
 
 type scheduledAlert struct {
 	scheduledAt time.Duration
-	amount		int	
+	amount      int
 }
 
 func (s scheduledAlert) String() string {
 	return fmt.Sprintf("%d chips at %v", s.amount, s.scheduledAt)
 }
 
-
-func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int) {
+func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to io.Writer) {
 	s.alerts = append(s.alerts, scheduledAlert{duration, amount})
 }
 
-
 type GameSpy struct {
-    StartedWith  int
-    FinishedWith string
-    StartCalled	 bool
+	StartedWith  int
+	FinishedWith string
+	StartCalled  bool
 }
 
-func (g *GameSpy) Start(numberOfPlayers int) {
+func (g *GameSpy) Start(numberOfPlayers int, alertsDestination io.Writer) {
 	g.StartCalled = true
-    g.StartedWith = numberOfPlayers
+	g.StartedWith = numberOfPlayers
 }
 
 func (g *GameSpy) Finish(winner string) {
-    g.FinishedWith = winner
+	g.FinishedWith = winner
 }
-
 
 var dummyAlerter = &SpyBlindAlerter{}
 var dummyPlayerStore = &poker.StubPlayerStore{}
 var dummyStdIn = &bytes.Buffer{}
 var dummyStdOut = &bytes.Buffer{}
-
 
 func TestCLI(t *testing.T) {
 	t.Run("record chris win from user input", func(t *testing.T) {
@@ -87,16 +83,16 @@ func TestCLI(t *testing.T) {
 
 		cases := []scheduledAlert{
 			{0 * time.Second, 100},
-            {10 * time.Minute, 200},
-            {20 * time.Minute, 300},
-            {30 * time.Minute, 400},
-            {40 * time.Minute, 500},
-            {50 * time.Minute, 600},
-            {60 * time.Minute, 800},
-            {70 * time.Minute, 1000},
-            {80 * time.Minute, 2000},
-            {90 * time.Minute, 4000},
-            {100 * time.Minute, 8000},
+			{10 * time.Minute, 200},
+			{20 * time.Minute, 300},
+			{30 * time.Minute, 400},
+			{40 * time.Minute, 500},
+			{50 * time.Minute, 600},
+			{60 * time.Minute, 800},
+			{70 * time.Minute, 1000},
+			{80 * time.Minute, 2000},
+			{90 * time.Minute, 4000},
+			{100 * time.Minute, 8000},
 		}
 
 		for i, want := range cases {
@@ -176,7 +172,6 @@ func userSends(messages ...string) io.Reader {
 	return strings.NewReader(strings.Join(messages, "\n"))
 }
 
-
 func assertFinishCallWith(t testing.TB, game *GameSpy, winner string) {
 	t.Helper()
 	want := winner
@@ -186,7 +181,3 @@ func assertFinishCallWith(t testing.TB, game *GameSpy, winner string) {
 	}
 
 }
-
-
-
-

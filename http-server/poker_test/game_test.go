@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 	"fmt"
+	"io/ioutil"
 )
 
 
@@ -14,7 +15,7 @@ func TestGame_Start(t *testing.T) {
 
 		game := poker.NewGame(blindAlerter, dummyPlayerStore)
 
-		game.Start(5)
+		game.Start(5, ioutil.Discard)
 		cases := []scheduledAlert{
 			{0 * time.Second, 100},
             {10 * time.Minute, 200},
@@ -35,7 +36,7 @@ func TestGame_Start(t *testing.T) {
 		blindAlerter := &SpyBlindAlerter{}
 		game := poker.NewGame(blindAlerter, dummyPlayerStore)
 
-		game.Start(7)
+		game.Start(7, ioutil.Discard)
 		cases := []scheduledAlert{
 			{0 * time.Second, 100},
             {12 * time.Minute, 200},

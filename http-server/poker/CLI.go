@@ -2,12 +2,12 @@ package poker
 
 import (
 	"io"
-	"os"
 	"bufio"
 	"strings"
 	"time"
 	"strconv"
 	"fmt"
+	"io/ioutil"
 )
 
 const PlayerPrompt = "Please enter the number of players: "
@@ -23,20 +23,20 @@ type CLI struct {
 }
 
 type BlindAlerter interface {
-	ScheduleAlertAt(duration time.Duration, amount int)
+	ScheduleAlertAt(duration time.Duration, amount int, to io.Writer)
 }
 
 // make this functional type implement BlindAlerter interface
-type BlindAlerterFunc func(duration time.Duration, amount int)
+type BlindAlerterFunc func(duration time.Duration, amount int, to io.Writer)
 
-func (a BlindAlerterFunc) ScheduleAlertAt(duration time.Duration, amount int) {
-	a(duration, amount)
+func (a BlindAlerterFunc) ScheduleAlertAt(duration time.Duration, amount int, to io.Writer) {
+	a(duration, amount, to)
 }
 
 // now this function can be a BlindAlerterFunc type which implements BlindAlerter interface
-func StdOutAlerter(duration time.Duration, amount int) {
+func Alerter(duration time.Duration, amount int, to io.Writer) {
 	time.AfterFunc(duration, func() {
-		fmt.Fprintf(os.Stdout, "Blind is now %d\n", amount)
+		fmt.Fprintf(to, "Blind is now %d\n", amount)
 	})
 }
 
@@ -52,7 +52,7 @@ func (c *CLI) PlayPoker() {
 	}
 	fmt.Printf("number of players: %d\n", numberOfPlayers)
 
-	c.game.Start(numberOfPlayers)
+	c.game.Start(numberOfPlayers, ioutil.Discard)
 	winnerInput := c.readLine()
 	if !validateWinnerInput(winnerInput) {
 		fmt.Fprintf(c.out, BadWinnerInputErrMsg)
