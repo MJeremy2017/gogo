@@ -10,10 +10,9 @@ import (
 	"strings"
 	"testing"
 	"time"
-	"server/poker_test"
 )
-// TODO: resolve import poker_test
-var dummyGame = &poker_test.GameSpy{}
+
+var dummyGame = &GameSpy{}
 
 func TestGETPlayers(t *testing.T) {
 	stubPlayerScore := &StubPlayerStore{
@@ -127,29 +126,11 @@ func TestGame(t *testing.T) {
 		assertStatus(t, response.Code, http.StatusOK)
 	})
 
-	t.Run("when get a message over a websocket, it is a winner of a game", func(t *testing.T) {
-		store := &StubPlayerStore{}
-		winner := "Ruth"
-		// persistent connections?
-		playerServer, _ := NewPlayerServer(store)
-		server := httptest.NewServer(playerServer)
-		defer server.Close()
-
-		wsURL := "ws" + strings.TrimPrefix(server.URL, "http") + "/ws"
-
-		ws := mustDialWS(t, wsURL)
-		defer ws.Close()
-
-		writeWSMessage(t, ws, winner)
-		time.Sleep(10 * time.Millisecond)
-		AssertPlayerWin(t, store, winner)
-	})
-
-	t.Run("start a game with 3 players and declare Ruth the winner", func(t *testing.T) {
+	t.Run("start a playGame with 3 players and declare Ruth the winner", func(t *testing.T) {
 		winner := "Ruth"
 
 		store := &StubPlayerStore{}
-		playerServer, _ := mustMakePlayerServer(t, store, dummyGame)
+		playerServer := mustMakePlayerServer(t, store, dummyGame)
 		server := httptest.NewServer(playerServer)
 		defer server.Close()
 
@@ -157,12 +138,12 @@ func TestGame(t *testing.T) {
 		ws := mustDialWS(t, wsURL)
 		defer ws.Close()
 
-		writeWSMessage(t, ws, 3)
+		writeWSMessage(t, ws, "3")
 		writeWSMessage(t, ws, winner)
 
 		time.Sleep(10 * time.Millisecond)
-		poker_test.assertGameStartedWith(t, game, 3)
-		assertFinishCallWith(t, game, winner)
+		assertGameStartedWith(t, dummyGame, 3)
+		assertFinishCallWith(t, dummyGame, winner)
 	})
 
 }

@@ -3,24 +3,23 @@ package poker
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/websocket"
+	"html/template"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
-	"html/template"
-	"github.com/gorilla/websocket"
 )
 
 const jsonContentType = "application/json"
 const htmlTemplatePath = "game.html"
 
 var wsUpgrader = websocket.Upgrader{
-	ReadBufferSize: 1024,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-
 type PlayerStore interface {
-
 	GetPlayerScore(player string) int
 
 	RecordWin(name string)
@@ -28,14 +27,15 @@ type PlayerStore interface {
 	GetLeague() League
 }
 
-// server takes in a player store interface
+// PlayerServer server takes in a player store interface
 type PlayerServer struct {
 	store        PlayerStore
 	http.Handler // embedding, now server can have Handler's methods
-	template   	 *template.Template
+	template     *template.Template
+	game         Game
 }
 
-func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
+func NewPlayerServer(store PlayerStore, game Game) (*PlayerServer, error) {
 	p := new(PlayerServer)
 
 	tmpl, err := template.ParseFiles(htmlTemplatePath)
@@ -47,11 +47,12 @@ func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
 
 	p.store = store
 	p.template = tmpl
+	p.game = game
 
 	router := http.NewServeMux()
 	router.Handle("/league", http.HandlerFunc(p.leagueHandler))
 	router.Handle("/players/", http.HandlerFunc(p.playerHandler))
-	router.Handle("/game", http.HandlerFunc(p.game))
+	router.Handle("/game", http.HandlerFunc(p.playGame))
 	router.Handle("/ws", http.HandlerFunc(p.webSocket))
 
 	p.Handler = router
@@ -60,8 +61,12 @@ func NewPlayerServer(store PlayerStore) (*PlayerServer, error) {
 
 func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
 	conn, _ := wsUpgrader.Upgrade(w, r, nil)
+	_, numberOfPlayersMsg, _ := conn.ReadMessage()
+	numberOfPlayers, _ := strconv.Atoi(string(numberOfPlayersMsg))
+	p.game.Start(numberOfPlayers, ioutil.Discard)
+
 	_, winnerMsg, _ := conn.ReadMessage()
-	p.store.RecordWin(string(winnerMsg))
+	p.game.Finish(string(winnerMsg))
 }
 
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +85,7 @@ func (p *PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (p *PlayerServer) game(w http.ResponseWriter, r *http.Request) {
+func (p *PlayerServer) playGame(w http.ResponseWriter, r *http.Request) {
 	p.template.Execute(w, nil)
 }
 
