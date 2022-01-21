@@ -1,11 +1,9 @@
 package poker
 
 import (
-	"fmt"
 	"io"
 	"strings"
 	"testing"
-	"time"
 )
 
 type StubPlayerStore struct {
@@ -24,23 +22,6 @@ func (s *StubPlayerStore) RecordWin(name string) {
 
 func (s *StubPlayerStore) GetLeague() League {
 	return s.league
-}
-
-type SpyBlindAlerter struct {
-	alerts []scheduledAlert
-}
-
-type scheduledAlert struct {
-	scheduledAt time.Duration
-	amount      int
-}
-
-func (s scheduledAlert) String() string {
-	return fmt.Sprintf("%d chips at %v", s.amount, s.scheduledAt)
-}
-
-func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to io.Writer) {
-	s.alerts = append(s.alerts, scheduledAlert{duration, amount})
 }
 
 type GameSpy struct {

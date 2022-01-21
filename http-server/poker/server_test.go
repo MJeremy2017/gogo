@@ -83,7 +83,7 @@ func TestStoreWins(t *testing.T) {
 		}
 
 		if stub.winCalls[0] != player {
-			t.Errorf("did not store correct winner, got %q want %q", stub.winCalls[0], player)
+			t.Errorf("did not store the correct winner, got %q want %q", stub.winCalls[0], player)
 		}
 	})
 }

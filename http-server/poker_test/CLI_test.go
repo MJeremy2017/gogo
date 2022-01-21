@@ -27,21 +27,6 @@ func (s *SpyBlindAlerter) ScheduleAlertAt(duration time.Duration, amount int, to
 	s.alerts = append(s.alerts, scheduledAlert{duration, amount})
 }
 
-type GameSpy struct {
-	StartedWith  int
-	FinishedWith string
-	StartCalled  bool
-}
-
-func (g *GameSpy) Start(numberOfPlayers int, alertsDestination io.Writer) {
-	g.StartCalled = true
-	g.StartedWith = numberOfPlayers
-}
-
-func (g *GameSpy) Finish(winner string) {
-	g.FinishedWith = winner
-}
-
 var dummyAlerter = &SpyBlindAlerter{}
 var dummyPlayerStore = &poker.StubPlayerStore{}
 var dummyStdIn = &bytes.Buffer{}
@@ -50,7 +35,7 @@ var dummyStdOut = &bytes.Buffer{}
 func TestCLI(t *testing.T) {
 	t.Run("record chris win from user input", func(t *testing.T) {
 		in := userSends("5", "Chris wins")
-		game := &GameSpy{}
+		game := &poker.GameSpy{}
 		stdOut := &bytes.Buffer{}
 
 		cli := poker.NewCLI(in, stdOut, game)
@@ -111,7 +96,7 @@ func TestCLI(t *testing.T) {
 
 		stdOut := &bytes.Buffer{}
 		in := strings.NewReader("desp\n")
-		game := &GameSpy{}
+		game := &poker.GameSpy{}
 
 		cli := poker.NewCLI(in, stdOut, game)
 		cli.PlayPoker()
@@ -126,7 +111,7 @@ func TestCLI(t *testing.T) {
 
 	t.Run("it prompts user error and end the game when winner format is incorrect", func(t *testing.T) {
 		in := userSends("5", "Chris is a killer")
-		game := &GameSpy{}
+		game := &poker.GameSpy{}
 		stdOut := &bytes.Buffer{}
 
 		cli := poker.NewCLI(in, stdOut, game)
@@ -159,7 +144,7 @@ func assertMessageSentToUser(t testing.TB, stdout *bytes.Buffer, messages ...str
 
 }
 
-func assertGameStartedWith(t testing.TB, game *GameSpy, numberOfPlayers int) {
+func assertGameStartedWith(t testing.TB, game *poker.GameSpy, numberOfPlayers int) {
 	t.Helper()
 	want := numberOfPlayers
 	got := game.StartedWith
@@ -172,7 +157,7 @@ func userSends(messages ...string) io.Reader {
 	return strings.NewReader(strings.Join(messages, "\n"))
 }
 
-func assertFinishCallWith(t testing.TB, game *GameSpy, winner string) {
+func assertFinishCallWith(t testing.TB, game *poker.GameSpy, winner string) {
 	t.Helper()
 	want := winner
 	got := game.FinishedWith
