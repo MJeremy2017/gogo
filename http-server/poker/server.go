@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -39,6 +38,17 @@ type PlayerServer struct {
 
 type playerServerWS struct {
 	*websocket.Conn
+}
+
+
+func (w *playerServerWS) Write(p []byte) (n int, err error) {
+	err = w.WriteMessage(websocket.TextMessage, p)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return len(p), nil
 }
 
 func NewPlayerServerWS(w http.ResponseWriter, r *http.Request) *playerServerWS {
@@ -89,7 +99,7 @@ func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
 
 	numberOfPlayersMsg := ws.WaitForMsg()
 	numberOfPlayers, _ := strconv.Atoi(numberOfPlayersMsg)
-	p.game.Start(numberOfPlayers, ioutil.Discard)
+	p.game.Start(numberOfPlayers, ws)
 
 	winnerMsg := ws.WaitForMsg()
 	p.game.Finish(winnerMsg)
@@ -98,7 +108,6 @@ func (p *PlayerServer) webSocket(w http.ResponseWriter, r *http.Request) {
 func (p *PlayerServer) leagueHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", jsonContentType)
 	json.NewEncoder(w).Encode(p.store.GetLeague())
-	w.WriteHeader(http.StatusOK)
 }
 
 func (p *PlayerServer) playerHandler(w http.ResponseWriter, r *http.Request) {
