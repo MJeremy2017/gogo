@@ -127,6 +127,7 @@ func TestGame(t *testing.T) {
 	})
 
 	t.Run("start a playGame with 3 players and declare Ruth the winner", func(t *testing.T) {
+		tenMS := 10 * time.Millisecond
 		wantedBlindAlert := "Blind is 100"
 		winner := "Ruth"
 
@@ -143,15 +144,11 @@ func TestGame(t *testing.T) {
 		writeWSMessage(t, ws, "3")
 		writeWSMessage(t, ws, winner)
 
-		time.Sleep(10 * time.Millisecond)
-		assertGameStartedWith(t, dummyGame, 3)
-		assertFinishCallWith(t, dummyGame, winner)
-
-		_, gotBlindAlert, _ := ws.ReadMessage()
-		if wantedBlindAlert != string(gotBlindAlert) {
-			t.Errorf("got blind alert %q, want %q", gotBlindAlert, wantedBlindAlert)
-		}
-
+		time.Sleep(tenMS)
+		assertGameStartedWith(t, game, 3)
+		assertFinishCallWith(t, game, winner)
+		// wait for some time before failing
+		within(t, tenMS, func() {assertWebsocketGotMsg(t, ws, wantedBlindAlert)})
 	})
 
 }
@@ -207,6 +204,13 @@ func assertStatus(t testing.TB, got, want int) {
 func assertLeague(t testing.TB, got, want []Player) {
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v want %v", got, want)
+	}
+}
+
+func assertWebsocketGotMsg(t *testing.T, ws *websocket.Conn, want string) {
+	_, msg, _ := ws.ReadMessage()
+	if want != string(msg) {
+		t.Errorf("got blind alert %q, want %q", msg, want)
 	}
 }
 

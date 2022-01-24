@@ -4,6 +4,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 )
 
 type StubPlayerStore struct {
@@ -78,3 +79,25 @@ func assertFinishCallWith(t testing.TB, game *GameSpy, winner string) {
 	}
 
 }
+
+func within(t testing.TB, d time.Duration, assert func()) {
+	t.Helper()
+
+	done := make(chan struct{}, 1)
+
+	go func() {
+		assert()
+		done <- struct{}{}
+	}()
+
+	select {
+	case <- time.After(d):
+		t.Error("time out")
+	case <- done:
+	}
+
+}
+
+
+
+
