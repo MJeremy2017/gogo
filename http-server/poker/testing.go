@@ -59,9 +59,14 @@ func AssertPlayerWin(t testing.TB, store *StubPlayerStore, winner string) {
 
 func assertGameStartedWith(t testing.TB, game *GameSpy, numberOfPlayers int) {
 	t.Helper()
+
+	passed := retryUntil(500 * time.Millisecond, func() bool {
+		return numberOfPlayers == game.StartedWith
+	})
+
 	want := numberOfPlayers
 	got := game.StartedWith
-	if got != want {
+	if !passed {
 		t.Errorf("wanted start call with %d but got %d", want, got)
 	}
 }
@@ -72,10 +77,13 @@ func userSends(messages ...string) io.Reader {
 
 func assertFinishCallWith(t testing.TB, game *GameSpy, winner string) {
 	t.Helper()
-	want := winner
-	got := game.FinishedWith
-	if got != want {
-		t.Errorf("wanted winner %s but got %s", want, got)
+
+	passed := retryUntil(500 * time.Millisecond, func() bool {
+		return game.FinishedWith == winner
+	})
+
+	if !passed {
+		t.Errorf("wanted winner %s but got %s", winner, game.FinishedWith)
 	}
 
 }
@@ -95,8 +103,19 @@ func within(t testing.TB, d time.Duration, assert func()) {
 		t.Error("time out")
 	case <- done:
 	}
-
 }
+
+
+func retryUntil(d time.Duration, f func() bool) bool {
+	deadline := time.Now().Add(d)
+	for time.Now().Before(deadline) {
+		if f() {
+			return true
+		}
+	}
+	return false
+}
+
 
 
 
