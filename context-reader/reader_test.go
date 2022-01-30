@@ -25,6 +25,25 @@ func TestContextAwareReader(t *testing.T) {
 
 		assertBufferHas(t, got, "456")
 	})
+
+	t.Run("behaves like a normal reader", func(t *testing.T) {
+		rdr := NewCancellatbleReader(strings.NewReader("123456"))
+		got := make([]byte, 3)
+		_, err := rdr.Read(got)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertBufferHas(t, got, "123")
+
+		_, err = rdr.Read(got)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertBufferHas(t, got, "456")
+	})
 }
 
 
