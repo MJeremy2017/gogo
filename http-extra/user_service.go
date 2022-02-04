@@ -8,8 +8,8 @@ import (
 
 
 type User struct {
-	name	string
-	age 	int
+	Name	string
+	Age 	int
 }
 
 type UserService interface {
@@ -22,6 +22,18 @@ type UserServer struct {
 
 func NewUserServer(service UserService) *UserServer {
 	return &UserServer{service: service}
+}
+
+type MongoDBService struct {
+	// example of DB service
+}
+
+func NewMongoDBService() *MongoDBService {
+	return &MongoDBService{}
+}
+
+func (m *MongoDBService) Register(user User) (insertedID string, err error) {
+	panic("implement me")
 }
 
 func (u *UserServer) RegisterUser(w http.ResponseWriter, r *http.Request) {
