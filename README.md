@@ -1,2 +1,2 @@
 # gogo
-golang practice
+Learn go with tests sections.
