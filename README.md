@@ -1,2 +1,2 @@
 # gogo
-Learn go with tests sections.
+Learn-go-with-tests code practice.
