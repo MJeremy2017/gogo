@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -12,11 +14,20 @@ import (
 )
 
 const DataDir = "data"
+const DefaultQuizFile = "problems.csv"
 
 func main() {
 	fmt.Println("Quiz starting")
-	f := openQuizFile()
+	quizFileName := getQuizFileFromInput()
+	f := openQuizFile(quizFileName)
 	Play(f)
+}
+
+func getQuizFileFromInput() string {
+	var quizFileName string
+	flag.StringVar(&quizFileName, "quiz-file", DefaultQuizFile, "quiz file name")
+	flag.Parse()
+	return quizFileName
 }
 
 func Play(f io.Reader) {
@@ -31,6 +42,7 @@ func Play(f io.Reader) {
 		totalQuizCnt += 1
 		quiz, expectedAnswer := r[0], r[1]
 		fmt.Printf("quiz: %s = ", quiz)
+
 		userAnswer := parseUserAnswer(stdInReader)
 		if answerIsCorrect(expectedAnswer, userAnswer) {
 			correctAnswerCnt += 1
@@ -50,12 +62,12 @@ func parseUserAnswer(reader *bufio.Reader) string {
 	return userAnswer
 }
 
-func openQuizFile() io.Reader {
+func openQuizFile(fileName string) io.Reader {
 	workingDir := getWorkingDir()
-	quizFilePath := filepath.Join(workingDir, DataDir, "problems.csv")
+	quizFilePath := filepath.Join(workingDir, DataDir, fileName)
 	f, err := os.Open(quizFilePath)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return f
 }
