@@ -13,8 +13,10 @@ import (
 	"strings"
 )
 
-const DataDir = "data"
-const DefaultQuizFile = "problems.csv"
+const (
+	DataDir         = "data"
+	DefaultQuizFile = "problems.csv"
+)
 
 func main() {
 	fmt.Println("Quiz starting")
