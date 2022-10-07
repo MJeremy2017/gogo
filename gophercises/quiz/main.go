@@ -20,37 +20,10 @@ const (
 	LimitSeconds    = 5
 )
 
-type GameTally struct {
-	correct int32
-	total   int32
-}
-
-func (g *GameTally) increaseCorrect() {
-	g.correct += 1
-}
-
-func (g *GameTally) increaseTotal() {
-	g.total += 1
-}
-
-func (g *GameTally) printScore() {
-	fmt.Printf("You have got %d out of %d quiz right\n", g.correct, g.total)
-}
-
 func main() {
-	fmt.Println("Quiz starting")
 	gameSeconds, quizFile := parseInArgs()
 	f := openQuizFile(quizFile)
 	PlayWithTimer(f, gameSeconds)
-}
-
-func parseInArgs() (int, string) {
-	var t int
-	var quizFileName string
-	flag.IntVar(&t, "seconds", LimitSeconds, "time limit")
-	flag.StringVar(&quizFileName, "quiz-file", DefaultQuizFile, "quiz file name")
-	flag.Parse()
-	return t, quizFileName
 }
 
 func PlayWithTimer(f io.Reader, seconds int) {
@@ -58,7 +31,7 @@ func PlayWithTimer(f io.Reader, seconds int) {
 	gameDuration := getGameDuration(seconds)
 	gameTally := NewGameTally()
 
-	// TODO add press enter to start the game
+	startGame()
 	go PlayAsync(f, done, gameTally)
 	select {
 	case <-time.After(gameDuration):
@@ -70,12 +43,15 @@ func PlayWithTimer(f io.Reader, seconds int) {
 	gameTally.printScore()
 }
 
-func getGameDuration(seconds int) time.Duration {
-	return time.Duration(seconds) * time.Second
+func startGame() {
+	fmt.Println("Press enter to start the game")
+	r := bufio.NewReader(os.Stdin)
+	parseUserAnswer(r)
+	fmt.Println("Game starting ...")
 }
 
-func NewGameTally() *GameTally {
-	return &GameTally{0, 0}
+func getGameDuration(seconds int) time.Duration {
+	return time.Duration(seconds) * time.Second
 }
 
 func PlayAsync(f io.Reader, done chan int, tally *GameTally) {
@@ -146,4 +122,13 @@ func getWorkingDir() string {
 		panic(fileName)
 	}
 	return filepath.Dir(fileName)
+}
+
+func parseInArgs() (int, string) {
+	var t int
+	var quizFileName string
+	flag.IntVar(&t, "seconds", LimitSeconds, "time limit")
+	flag.StringVar(&quizFileName, "quiz-file", DefaultQuizFile, "quiz file name")
+	flag.Parse()
+	return t, quizFileName
 }
