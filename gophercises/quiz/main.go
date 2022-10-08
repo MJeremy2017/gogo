@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -20,8 +21,14 @@ const (
 	LimitSeconds    = 5
 )
 
+var (
+	gameSeconds int
+	quizFile    string
+	shuffle     bool
+)
+
 func main() {
-	gameSeconds, quizFile := parseInArgs()
+	parseInArgs()
 	f := openQuizFile(quizFile)
 	PlayWithTimer(f, gameSeconds)
 }
@@ -59,7 +66,25 @@ func parseAllProblems(f io.Reader) Problems {
 		qs = append(qs, quiz)
 		ans = append(ans, expectedAnswer)
 	}
-	return Problems{qs, ans}
+	p := Problems{qs, ans}
+	if shuffle {
+		shuffleProblems(&p)
+	}
+	return p
+}
+
+func shuffleProblems(p *Problems) {
+	var ind []int
+	q, ans := p.quiz, p.answers
+	n := len(q)
+	for i := 0; i < n; i++ {
+		ind = append(ind, i)
+	}
+	rand.Seed(time.Now().Unix())
+	rand.Shuffle(n, func(i int, j int) {
+		q[i], q[j] = q[j], q[i]
+		ans[i], ans[j] = ans[j], ans[i]
+	})
 }
 
 func startGame() {
@@ -110,8 +135,14 @@ func Play(f io.Reader) {
 }
 
 func answerIsCorrect(expected string, got string) bool {
+	expected = formatString(expected)
+	got = formatString(got)
 	fmt.Println("your answer is", got, "expected", expected)
 	return expected == got
+}
+
+func formatString(str string) string {
+	return strings.ToLower(strings.TrimSpace(str))
 }
 
 func parseUserAnswer(reader *bufio.Reader) string {
@@ -138,11 +169,9 @@ func getWorkingDir() string {
 	return filepath.Dir(fileName)
 }
 
-func parseInArgs() (int, string) {
-	var t int
-	var quizFileName string
-	flag.IntVar(&t, "seconds", LimitSeconds, "time limit")
-	flag.StringVar(&quizFileName, "quiz-file", DefaultQuizFile, "quiz file name")
+func parseInArgs() {
+	flag.IntVar(&gameSeconds, "seconds", LimitSeconds, "time limit")
+	flag.StringVar(&quizFile, "quiz-file", DefaultQuizFile, "quiz file name")
+	flag.BoolVar(&shuffle, "shuffle", false, "shuffle problems")
 	flag.Parse()
-	return t, quizFileName
 }
