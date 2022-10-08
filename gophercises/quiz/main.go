@@ -29,16 +29,15 @@ var (
 
 func main() {
 	parseInArgs()
-	f := openQuizFile(quizFile)
-	PlayWithTimer(f, gameSeconds)
+	PlayWithTimer()
 }
 
-func PlayWithTimer(f io.Reader, seconds int) {
+func PlayWithTimer() {
 	done := make(chan int)
-	gameDuration := getGameDuration(seconds)
+	gameDuration := getGameDuration(gameSeconds)
 	gameTally := NewGameTally()
 
-	problems := parseAllProblems(f)
+	problems := parseAllProblems()
 	gameTally.SetTotal(int32(len(problems.quiz)))
 
 	startGame()
@@ -53,9 +52,10 @@ func PlayWithTimer(f io.Reader, seconds int) {
 	gameTally.printScore()
 }
 
-func parseAllProblems(f io.Reader) Problems {
+func parseAllProblems() Problems {
 	var qs []string
 	var ans []string
+	f := openQuizFile(quizFile)
 	csvReader := csv.NewReader(f)
 	for {
 		r, err := csvReader.Read()
