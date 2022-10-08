@@ -40,7 +40,6 @@ func PlayWithTimer() {
 	problems := parseAllProblems()
 	gameTally.SetTotal(int32(len(problems.quiz)))
 
-	startGame()
 	go PlayAsync(done, gameTally, problems)
 	select {
 	case <-time.After(gameDuration):
@@ -99,8 +98,8 @@ func getGameDuration(seconds int) time.Duration {
 }
 
 func PlayAsync(done chan int, tally *GameTally, problems Problems) {
+	startGame()
 	stdInReader := bufio.NewReader(os.Stdin)
-
 	for i := 0; i < len(problems.quiz); i++ {
 		quiz, expectedAnswer := problems.quiz[i], problems.answers[i]
 		fmt.Printf("quiz: %s = ", quiz)
