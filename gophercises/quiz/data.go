@@ -2,6 +2,11 @@ package main
 
 import "fmt"
 
+type Problems struct {
+	quiz    []string
+	answers []string
+}
+
 type GameTally struct {
 	correct int32
 	total   int32
@@ -13,6 +18,10 @@ func (g *GameTally) increaseCorrect() {
 
 func (g *GameTally) increaseTotal() {
 	g.total += 1
+}
+
+func (g *GameTally) SetTotal(t int32) {
+	g.total = t
 }
 
 func (g *GameTally) printScore() {

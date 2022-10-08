@@ -31,8 +31,11 @@ func PlayWithTimer(f io.Reader, seconds int) {
 	gameDuration := getGameDuration(seconds)
 	gameTally := NewGameTally()
 
+	problems := parseAllProblems(f)
+	gameTally.SetTotal(int32(len(problems.quiz)))
+
 	startGame()
-	go PlayAsync(f, done, gameTally)
+	go PlayAsync(done, gameTally, problems)
 	select {
 	case <-time.After(gameDuration):
 		fmt.Println("\nTime is up, you did not finish all the quiz!")
@@ -41,6 +44,22 @@ func PlayWithTimer(f io.Reader, seconds int) {
 		close(done)
 	}
 	gameTally.printScore()
+}
+
+func parseAllProblems(f io.Reader) Problems {
+	var qs []string
+	var ans []string
+	csvReader := csv.NewReader(f)
+	for {
+		r, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		}
+		quiz, expectedAnswer := r[0], r[1]
+		qs = append(qs, quiz)
+		ans = append(ans, expectedAnswer)
+	}
+	return Problems{qs, ans}
 }
 
 func startGame() {
@@ -54,16 +73,11 @@ func getGameDuration(seconds int) time.Duration {
 	return time.Duration(seconds) * time.Second
 }
 
-func PlayAsync(f io.Reader, done chan int, tally *GameTally) {
+func PlayAsync(done chan int, tally *GameTally, problems Problems) {
 	stdInReader := bufio.NewReader(os.Stdin)
-	csvReader := csv.NewReader(f)
-	for {
-		r, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		tally.increaseTotal()
-		quiz, expectedAnswer := r[0], r[1]
+
+	for i := 0; i < len(problems.quiz); i++ {
+		quiz, expectedAnswer := problems.quiz[i], problems.answers[i]
 		fmt.Printf("quiz: %s = ", quiz)
 
 		userAnswer := parseUserAnswer(stdInReader)
