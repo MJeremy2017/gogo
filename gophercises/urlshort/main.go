@@ -14,12 +14,9 @@ func main() {
 	parseFlags()
 	mux := defaultMux()
 
-	// Build the MapHandler using the mux as the fallback
-	mapHandler := handlers.MapHandler(mux)
-
 	// Build the YAMLHandler using the mapHandler as the
 	// fallback
-	yamlHandler, err := handlers.YAMLHandler(yamlFile, mapHandler)
+	yamlHandler, err := handlers.YAMLHandler(yamlFile, mux)
 	if err != nil {
 		panic(err)
 	}

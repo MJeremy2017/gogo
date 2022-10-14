@@ -16,21 +16,16 @@ const defaultYaml = `
   url: https://github.com/gophercises/urlshort/tree/solution
 `
 
-var defaultMap = map[string]string{
-	"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
-	"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
-}
-
 // MapHandler will return a http.HandlerFunc (which also
 // implements http.Handler) that will attempt to map any
 // paths (keys in the map) to their corresponding URL (values
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(fallback http.Handler) http.HandlerFunc {
+func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		path := request.URL.Path
-		redirectPath, ok := defaultMap[path]
+		redirectPath, ok := pathsToUrls[path]
 		if ok {
 			log.Println("redirect path found", redirectPath)
 			http.Redirect(writer, request, redirectPath, http.StatusFound)
@@ -68,19 +63,12 @@ func YAMLHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
 	if err != nil {
 		panic(err)
 	}
-	return func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		redirectPath, ok := pathsToUrls[path]
-		if ok {
-			log.Println("redirect path found", redirectPath)
-			http.Redirect(w, r, redirectPath, http.StatusFound)
-		} else {
-			log.Println("redirect path NOT found")
-			fallback.ServeHTTP(w, r)
-		}
-
-	}, nil
+	return MapHandler(pathsToUrls, fallback), nil
 }
+
+//func JSONHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
+//	parse
+//}
 
 func loadYamlFromFile(file string) ([]byte, error) {
 	f, err := os.ReadFile(file)
