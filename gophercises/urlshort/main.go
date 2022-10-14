@@ -1,13 +1,17 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"urlshort/handlers"
 )
 
+var yamlFile string
+
 func main() {
+	parseFlags()
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
@@ -19,13 +23,7 @@ func main() {
 
 	// Build the YAMLHandler using the mapHandler as the
 	// fallback
-	yaml := `
-- path: /urlshort
-  url: https://github.com/gophercises/urlshort
-- path: /urlshort-final
-  url: https://github.com/gophercises/urlshort/tree/solution
-`
-	yamlHandler, err := handlers.YAMLHandler([]byte(yaml), mapHandler)
+	yamlHandler, err := handlers.YAMLHandler(yamlFile, mapHandler)
 	if err != nil {
 		panic(err)
 	}
@@ -34,6 +32,11 @@ func main() {
 	if err != nil {
 		log.Fatalln("unable to start the server", err)
 	}
+}
+
+func parseFlags() {
+	flag.StringVar(&yamlFile, "yml", "", "yaml file name to stored urls")
+	flag.Parse()
 }
 
 func defaultMux() *http.ServeMux {

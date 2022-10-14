@@ -2,3 +2,5 @@
   url: https://github.com/gophercises/urlshort
 - path: /urlshort-final
   url: https://github.com/gophercises/urlshort/tree/solution
+- path: /cyoa
+  url: https://github.com/gophercises/cyoa

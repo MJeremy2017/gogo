@@ -4,9 +4,19 @@ import (
 	"gopkg.in/yaml.v2"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
 )
 
 type PathURL []map[string]string
+
+const defaultYaml = `
+- path: /urlshort
+  url: https://github.com/gophercises/urlshort
+- path: /urlshort-final
+  url: https://github.com/gophercises/urlshort/tree/solution
+`
 
 // MapHandler will return a http.HandlerFunc (which also
 // implements http.Handler) that will attempt to map any
@@ -45,7 +55,13 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 //
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
-func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
+func YAMLHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
+	var yml []byte
+	yml, err := loadYamlFromFile(file)
+	if err != nil {
+		log.Printf("unable to load yaml from file %v", err)
+		yml = []byte(defaultYaml)
+	}
 	pathsToUrls, err := parseYAMLtoMap(yml)
 	if err != nil {
 		panic(err)
@@ -64,6 +80,17 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	}, nil
 }
 
+func loadYamlFromFile(file string) ([]byte, error) {
+	fp := getUrlYamlFilePath(file)
+	f, err := os.ReadFile(fp)
+	return f, err
+}
+
+func getUrlYamlFilePath(file string) string {
+	wk := getWorkingDir()
+	return filepath.Join(wk, "data", file)
+}
+
 func parseYAMLtoMap(yml []byte) (map[string]string, error) {
 	p := PathURL{}
 	err := yaml.Unmarshal(yml, &p)
@@ -80,4 +107,12 @@ func getPathURLMap(p PathURL) map[string]string {
 		r[m["path"]] = m["url"]
 	}
 	return r
+}
+
+func getWorkingDir() string {
+	_, fileName, _, ok := runtime.Caller(0)
+	if !ok {
+		panic(fileName)
+	}
+	return filepath.Dir(filepath.Dir(fileName))
 }
