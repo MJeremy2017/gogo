@@ -5,8 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"runtime"
 )
 
 type PathURL []map[string]string
@@ -81,14 +79,8 @@ func YAMLHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
 }
 
 func loadYamlFromFile(file string) ([]byte, error) {
-	fp := getUrlYamlFilePath(file)
-	f, err := os.ReadFile(fp)
+	f, err := os.ReadFile(file)
 	return f, err
-}
-
-func getUrlYamlFilePath(file string) string {
-	wk := getWorkingDir()
-	return filepath.Join(wk, "data", file)
 }
 
 func parseYAMLtoMap(yml []byte) (map[string]string, error) {
@@ -107,12 +99,4 @@ func getPathURLMap(p PathURL) map[string]string {
 		r[m["path"]] = m["url"]
 	}
 	return r
-}
-
-func getWorkingDir() string {
-	_, fileName, _, ok := runtime.Caller(0)
-	if !ok {
-		panic(fileName)
-	}
-	return filepath.Dir(filepath.Dir(fileName))
 }
