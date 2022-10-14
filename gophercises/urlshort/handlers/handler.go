@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"gopkg.in/yaml.v2"
 	"log"
 	"net/http"
@@ -54,7 +55,7 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 // a mapping of paths to urls.
 func YAMLHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
 	var yml []byte
-	yml, err := loadYamlFromFile(file)
+	yml, err := readFromFile(file)
 	if err != nil {
 		log.Printf("unable to load yaml from file %v", err)
 		yml = []byte(defaultYaml)
@@ -66,11 +67,30 @@ func YAMLHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
 	return MapHandler(pathsToUrls, fallback), nil
 }
 
-//func JSONHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
-//	parse
-//}
+// JSONHandler will handler and path to urls from a given json file
+func JSONHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
+	var js []byte
+	js, err := readFromFile(file)
+	if err != nil {
+		panic(err)
+	}
+	pathsToUrls, err := parseJSONtoMap(js)
+	if err != nil {
+		panic(err)
+	}
+	return MapHandler(pathsToUrls, fallback), nil
+}
 
-func loadYamlFromFile(file string) ([]byte, error) {
+func parseJSONtoMap(js []byte) (map[string]string, error) {
+	p := PathURL{}
+	err := json.Unmarshal(js, &p)
+	if err != nil {
+		return nil, err
+	}
+	return getPathURLMap(p), nil
+}
+
+func readFromFile(file string) ([]byte, error) {
 	f, err := os.ReadFile(file)
 	return f, err
 }
@@ -81,8 +101,7 @@ func parseYAMLtoMap(yml []byte) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	m := getPathURLMap(p)
-	return m, nil
+	return getPathURLMap(p), nil
 }
 
 func getPathURLMap(p PathURL) map[string]string {
