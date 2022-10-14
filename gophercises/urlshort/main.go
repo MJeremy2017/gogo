@@ -15,11 +15,7 @@ func main() {
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
-	pathsToUrls := map[string]string{
-		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
-		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
-	}
-	mapHandler := handlers.MapHandler(pathsToUrls, mux)
+	mapHandler := handlers.MapHandler(mux)
 
 	// Build the YAMLHandler using the mapHandler as the
 	// fallback
@@ -36,6 +32,7 @@ func main() {
 
 func parseFlags() {
 	flag.StringVar(&yamlFile, "yml", "", "yaml file name to stored urls")
+	flag.StringVar(&yamlFile, "json", "", "json file name to stored urls")
 	flag.Parse()
 }
 

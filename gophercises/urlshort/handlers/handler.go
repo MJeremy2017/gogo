@@ -16,17 +16,21 @@ const defaultYaml = `
   url: https://github.com/gophercises/urlshort/tree/solution
 `
 
+var defaultMap = map[string]string{
+	"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
+	"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
+}
+
 // MapHandler will return a http.HandlerFunc (which also
 // implements http.Handler) that will attempt to map any
 // paths (keys in the map) to their corresponding URL (values
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-
+func MapHandler(fallback http.Handler) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		path := request.URL.Path
-		redirectPath, ok := pathsToUrls[path]
+		redirectPath, ok := defaultMap[path]
 		if ok {
 			log.Println("redirect path found", redirectPath)
 			http.Redirect(writer, request, redirectPath, http.StatusFound)
