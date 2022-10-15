@@ -9,19 +9,18 @@ import (
 )
 
 var yamlFile string
+var jsonFile string
 
 func main() {
 	parseFlags()
 	mux := defaultMux()
 
-	// Build the YAMLHandler using the mapHandler as the
-	// fallback
-	yamlHandler, err := handlers.YAMLHandler(yamlFile, mux)
+	jsonHandler, err := handlers.JSONHandler(jsonFile, mux)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Starting the server on :8080")
-	err = http.ListenAndServe(":8080", yamlHandler)
+	err = http.ListenAndServe(":8080", jsonHandler)
 	if err != nil {
 		log.Fatalln("unable to start the server", err)
 	}
@@ -29,7 +28,7 @@ func main() {
 
 func parseFlags() {
 	flag.StringVar(&yamlFile, "yml", "", "yaml file name to stored urls")
-	flag.StringVar(&yamlFile, "json", "", "json file name to stored urls")
+	flag.StringVar(&jsonFile, "json", "", "json file name to stored urls")
 	flag.Parse()
 }
 

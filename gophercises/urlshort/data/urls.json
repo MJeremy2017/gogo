@@ -10,5 +10,9 @@
   {
     "path": "/cyoa",
     "url": "https://github.com/gophercises/cyoa"
+  },
+  {
+    "path": "/stack",
+    "url": "https://stackoverflow.com/"
   }
 ]
