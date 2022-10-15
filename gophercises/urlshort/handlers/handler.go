@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/go-errors/errors"
 	"gopkg.in/yaml.v2"
 	"log"
 	"net/http"
 	"os"
+	"urlshort/data"
 )
 
 type PathURL []map[string]string
@@ -79,6 +82,42 @@ func JSONHandler(file string, fallback http.Handler) (http.HandlerFunc, error) {
 		panic(err)
 	}
 	return MapHandler(pathsToUrls, fallback), nil
+}
+
+// BoltDbHandler saves and accesses data from bolt DB
+func BoltDbHandler(fallback http.Handler) (http.HandlerFunc, error) {
+	db := data.NewBoltDB("path_to_urls")
+	err := writeDataToBoltdb(db)
+	if err != nil {
+		return nil, err
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := r.URL.Path
+		redirectPath := db.Get([]byte(p))
+		if redirectPath != "" {
+			log.Println("redirect path found", redirectPath)
+			http.Redirect(w, r, redirectPath, http.StatusFound)
+		} else {
+			log.Println("redirect path NOT found")
+			fallback.ServeHTTP(w, r)
+		}
+
+	}, nil
+}
+
+func writeDataToBoltdb(db *data.BoltDB) error {
+	pathToUrls := map[string]string{
+		"/urlshort": "https://github.com/gophercises/urlshort",
+		"/bolt":     "https://github.com/boltdb/bolt#getting-started",
+	}
+	for k, v := range pathToUrls {
+		err := db.Set([]byte(k), []byte(v))
+		if err != nil {
+			return errors.Wrap(err, 0)
+		}
+		fmt.Println("wrote", k, v)
+	}
+	return nil
 }
 
 func parseJSONtoMap(js []byte) (map[string]string, error) {

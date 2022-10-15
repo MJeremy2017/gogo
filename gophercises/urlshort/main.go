@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/go-errors/errors"
 	"log"
 	"net/http"
 	"urlshort/handlers"
@@ -15,12 +16,12 @@ func main() {
 	parseFlags()
 	mux := defaultMux()
 
-	jsonHandler, err := handlers.JSONHandler(jsonFile, mux)
+	handler, err := handlers.BoltDbHandler(mux)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err.(*errors.Error).ErrorStack())
 	}
 	fmt.Println("Starting the server on :8080")
-	err = http.ListenAndServe(":8080", jsonHandler)
+	err = http.ListenAndServe(":8080", handler)
 	if err != nil {
 		log.Fatalln("unable to start the server", err)
 	}
