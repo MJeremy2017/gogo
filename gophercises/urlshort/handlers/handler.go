@@ -101,7 +101,6 @@ func BoltDbHandler(fallback http.Handler) (http.HandlerFunc, error) {
 			log.Println("redirect path NOT found")
 			fallback.ServeHTTP(w, r)
 		}
-
 	}, nil
 }
 
@@ -115,7 +114,7 @@ func writeDataToBoltdb(db *data.BoltDB) error {
 		if err != nil {
 			return errors.Wrap(err, 0)
 		}
-		fmt.Println("wrote", k, v)
+		fmt.Println("loaded data", k, v)
 	}
 	return nil
 }
