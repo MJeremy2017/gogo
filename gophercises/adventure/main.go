@@ -6,6 +6,10 @@ import (
 	"net/http"
 )
 
+// TODO: display an html format with links below
+// TODO: use a html template to display
+// TODO: load json in structs and put in template
+
 const ADDRESS = ":8000"
 
 func main() {
