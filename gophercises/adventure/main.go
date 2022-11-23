@@ -15,7 +15,7 @@ const ADDRESS = ":8000"
 func main() {
 	mux := getRegisteredHandler()
 	log.Println("listening on port", ADDRESS)
-	log.Fatalln(http.ListenAndServe(ADDRESS, mux))
+	log.Fatal(http.ListenAndServe(ADDRESS, mux))
 }
 
 func getRegisteredHandler() http.Handler {
@@ -25,7 +25,7 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprint(w, "hello")
+	_, err := fmt.Fprint(w, "<h1>hello</h1>")
 	if err != nil {
 		log.Fatal(err)
 	}
