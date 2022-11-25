@@ -1,11 +1,14 @@
 package parser
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestParseStory(t *testing.T) {
 	t.Run("Can parse json", func(t *testing.T) {
-		fp := "/Users/zhangyue/Workspace/github/gogo/gophercises/adventure/story.json"
-		ParseStory(fp)
-
+		fp := "../story.json"
+		_, err := ParseStory(fp)
+		assert.NoError(t, err, "parse story failed")
 	})
 }
