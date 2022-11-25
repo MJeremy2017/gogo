@@ -11,6 +11,22 @@ import (
 // TODO: load json in structs and put in template
 
 const ADDRESS = ":8000"
+const HtmlContent = `
+<html>
+    <head>
+        <title>An adventure golang project</title>
+        <style>
+		  body {background-color: powderblue;}
+		  h2 {color: black;}
+		  p {color: blue;}
+		</style>
+    </head>
+    <body>
+        <h2>TITLE H2</h2>
+        <p>This is the paragraph</p>
+    </body>
+</html>
+`
 
 func main() {
 	mux := getRegisteredHandler()
@@ -25,7 +41,7 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprint(w, "<h1>hello</h1>")
+	_, err := fmt.Fprint(w, HtmlContent)
 	if err != nil {
 		log.Fatal(err)
 	}
