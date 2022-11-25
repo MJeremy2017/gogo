@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"adventure/parser"
+	"html/template"
 	"log"
 	"net/http"
 )
@@ -11,22 +12,8 @@ import (
 // TODO: load json in structs and put in template
 
 const ADDRESS = ":8000"
-const HtmlContent = `
-<html>
-    <head>
-        <title>An adventure golang project</title>
-        <style>
-		  body {background-color: powderblue;}
-		  h2 {color: black;}
-		  p {color: blue;}
-		</style>
-    </head>
-    <body>
-        <h2>TITLE H2</h2>
-        <p>This is the paragraph</p>
-    </body>
-</html>
-`
+const StoryFilePath = "story.json"
+const HtmlTemplatePath = "story_template.html"
 
 func main() {
 	mux := getRegisteredHandler()
@@ -41,7 +28,17 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprint(w, HtmlContent)
+	story, err := parser.ParseStory(StoryFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmpl, err := template.ParseFiles(HtmlTemplatePath)
+	LogFatalIfErr(err)
+	err = tmpl.Execute(w, story)
+	LogFatalIfErr(err)
+}
+
+func LogFatalIfErr(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}

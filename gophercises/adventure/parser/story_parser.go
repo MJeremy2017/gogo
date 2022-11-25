@@ -2,7 +2,6 @@ package parser
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 )
 
@@ -74,10 +73,4 @@ func ParseStory(fp string) (Story, error) {
 		return Story{}, err
 	}
 	return story, nil
-}
-
-func LogFatalErr(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
 }
