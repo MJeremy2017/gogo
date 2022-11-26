@@ -6,16 +6,24 @@
         h2 {color: rgba(0, 0, 0, 0.87);}
         p {color: blue;}
         div {color: blue;}
+        .contentContainer {
+            max-width: 600px;
+            margin: auto;
+        }
     </style>
 </head>
-<body>
+<body style="margin:auto;padding:200px">
+<div class="contentContainer">
     <h2>{{.Intro.Title}}</h2>
+    <br>
     {{range $index, $elem := .Intro.Story}}
-        <div>{{$elem}}</div>
+    <div>{{$elem}}</div>
     {{end}}
+    <br>
     {{range $index, $elem := .Intro.Options}}
         <a href=$elem.Arc>{{$elem.Text}}</a>
-        <div></div>
+        <br><br>
     {{end}}
+</div>
 </body>
 </html>
