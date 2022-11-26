@@ -7,9 +7,8 @@ import (
 	"net/http"
 )
 
-// TODO: display an html format with links below
-// TODO: use a html template to display
-// TODO: load json in structs and put in template
+// TODO: Add links to '/'
+// TODO: for each story, render a template (one method for all)
 
 const ADDRESS = ":8000"
 const StoryFilePath = "story.json"
@@ -29,11 +28,11 @@ func getRegisteredHandler() http.Handler {
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
 	story, err := parser.ParseStory(StoryFilePath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	LogFatalIfErr(err)
+
 	tmpl, err := template.ParseFiles(HtmlTemplatePath)
 	LogFatalIfErr(err)
+
 	err = tmpl.Execute(w, story)
 	LogFatalIfErr(err)
 }

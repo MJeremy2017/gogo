@@ -5,10 +5,17 @@
         body {background-color: #e0e6b0;}
         h2 {color: rgba(0, 0, 0, 0.87);}
         p {color: blue;}
+        div {color: blue;}
     </style>
 </head>
 <body>
     <h2>{{.Intro.Title}}</h2>
-    <p>{{.Intro.Story}}</p>
+    {{range $index, $elem := .Intro.Story}}
+        <div>{{$elem}}</div>
+    {{end}}
+    {{range $index, $elem := .Intro.Options}}
+        <a href=$elem.Arc>{{$elem.Text}}</a>
+        <div></div>
+    {{end}}
 </body>
 </html>
