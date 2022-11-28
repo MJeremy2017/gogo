@@ -14,13 +14,13 @@
 </head>
 <body style="margin:auto;padding:200px">
 <div class="contentContainer">
-    <h2>{{.Intro.Title}}</h2>
+    <h2>{{.Title}}</h2>
     <br>
-    {{range $index, $elem := .Intro.Story}}
+    {{range $index, $elem := .Story}}
     <div>{{$elem}}</div>
     {{end}}
     <br>
-    {{range $index, $elem := .Intro.Options}}
+    {{range $index, $elem := .Options}}
         <a href=$elem.Arc>{{$elem.Text}}</a>
         <br><br>
     {{end}}
