@@ -2,14 +2,10 @@ package main
 
 import (
 	"adventure/parser"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 )
-
-// TODO: for each story, render a template (one method for all)
-// host:port/story_name -> render template
 
 const ADDRESS = ":8000"
 const StoryFilePath = "story.json"
@@ -34,7 +30,6 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO update link to direct to by chapter name
 	chapterKey := getRegisteredChapterKey(r)
 	chapter := story[chapterKey]
 
@@ -48,7 +43,6 @@ func storyHandler(w http.ResponseWriter, r *http.Request) {
 func getRegisteredChapterKey(r *http.Request) string {
 	defaultKey := "intro"
 	key := r.URL.Path[1:]
-	fmt.Printf("op %s", key)
 	if len(key) == 0 || key == "home" {
 		return defaultKey
 	}

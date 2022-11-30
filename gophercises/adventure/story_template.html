@@ -21,7 +21,7 @@
     {{end}}
     <br>
     {{range $index, $elem := .Options}}
-        <a href=$elem.Arc>{{$elem.Text}}</a>
+        <a href="/{{$elem.Arc}}">{{$elem.Text}}</a>
         <br><br>
     {{end}}
 </div>
