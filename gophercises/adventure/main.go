@@ -13,7 +13,11 @@ const HtmlTemplatePath = "story_template.html"
 
 var story parser.Story
 var err error
+var tmpl = template.Must(template.ParseFiles(HtmlTemplatePath))
 
+// TODO template caches
+// TODO redirect when chapter key not exists
+// TODO handle http internal server error
 func main() {
 	story, err = parser.ParseStory(StoryFilePath)
 	LogFatalIfErr(err)
@@ -32,9 +36,6 @@ func getRegisteredHandler() http.Handler {
 func storyHandler(w http.ResponseWriter, r *http.Request) {
 	chapterKey := getRegisteredChapterKey(r)
 	chapter := story[chapterKey]
-
-	tmpl, err := template.ParseFiles(HtmlTemplatePath)
-	LogFatalIfErr(err)
 
 	err = tmpl.Execute(w, chapter)
 	LogFatalIfErr(err)
