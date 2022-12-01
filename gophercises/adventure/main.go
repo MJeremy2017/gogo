@@ -2,6 +2,7 @@ package main
 
 import (
 	"adventure/parser"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,8 +17,6 @@ var err error
 var tmpl = template.Must(template.ParseFiles(HtmlTemplatePath))
 
 // TODO template caches
-// TODO redirect when chapter key not exists
-// TODO handle http internal server error
 func main() {
 	story, err = parser.ParseStory(StoryFilePath)
 	LogFatalIfErr(err)
@@ -34,24 +33,32 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
-	chapterKey := getRegisteredChapterKey(r)
-	chapter := story[chapterKey]
-
+	chapter, err := getChapter(r)
+	logAndRedirectWhenErr(w, r, err)
 	err = tmpl.Execute(w, chapter)
-	LogFatalIfErr(err)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("unexpected error when rendering tempate %+v", err), http.StatusInternalServerError)
+	}
 }
 
-func getRegisteredChapterKey(r *http.Request) string {
+func logAndRedirectWhenErr(w http.ResponseWriter, r *http.Request, err error) {
+	if err != nil {
+		errMsg := fmt.Sprintf("unexpected error when directing chapters %+v", err)
+		log.Println(errMsg)
+		http.Redirect(w, r, "/home", http.StatusFound)
+	}
+}
+
+func getChapter(r *http.Request) (parser.Chapter, error) {
 	defaultKey := "intro"
 	key := r.URL.Path[1:]
 	if len(key) == 0 || key == "home" {
-		return defaultKey
+		return story[defaultKey], nil
 	}
-	if _, ok := story[key]; !ok {
-		log.Printf("invalid chapter name %s", key)
-		return defaultKey
+	if c, ok := story[key]; ok {
+		return c, nil
 	}
-	return key
+	return parser.Chapter{}, fmt.Errorf("invalid chapter key %s", key)
 }
 
 func LogFatalIfErr(err error) {
