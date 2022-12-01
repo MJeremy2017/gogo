@@ -16,7 +16,6 @@ var story parser.Story
 var err error
 var tmpl = template.Must(template.ParseFiles(HtmlTemplatePath))
 
-// TODO template caches
 func main() {
 	story, err = parser.ParseStory(StoryFilePath)
 	LogFatalIfErr(err)
@@ -37,7 +36,7 @@ func storyHandler(w http.ResponseWriter, r *http.Request) {
 	logAndRedirectWhenErr(w, r, err)
 	err = tmpl.Execute(w, chapter)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("unexpected error when rendering tempate %+v", err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
