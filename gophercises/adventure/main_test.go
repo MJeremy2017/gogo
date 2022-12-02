@@ -84,7 +84,7 @@ func Test_storyHandler(t *testing.T) {
 				r: httptest.NewRequest("GET", "/new-york", nil),
 			},
 			expectedTitle:    "<h2>Visiting New York</h2>",
-			expectedLocation: "/new-york",
+			expectedLocation: "",
 		},
 		{
 			name: "redirect-to-home-with-invalid-path",
@@ -104,6 +104,7 @@ func Test_storyHandler(t *testing.T) {
 
 			match := extractTitle(w)
 			assert.Equal(t, tt.expectedTitle, match)
+			// The Location response header indicates the URL to redirect a page to
 			assert.Equal(t, tt.expectedLocation, w.Result().Header.Get("Location"))
 		})
 	}
