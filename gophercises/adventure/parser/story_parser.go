@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 )
 
@@ -27,5 +28,6 @@ func ParseStory(fp string) (Story, error) {
 	if err != nil {
 		return Story{}, err
 	}
+	log.Println("story loaded successfully")
 	return story, nil
 }

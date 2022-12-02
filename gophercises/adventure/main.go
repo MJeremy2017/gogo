@@ -13,16 +13,11 @@ const StoryFilePath = "story.json"
 const HtmlTemplatePath = "story_template.html"
 const StoryDefaultKey = "intro"
 
-var story parser.Story
-var err error
 var tmpl = template.Must(template.ParseFiles(HtmlTemplatePath))
 
 // TODO add test for story handler
 
 func main() {
-	story, err = parser.ParseStory(StoryFilePath)
-	LogFatalIfErr(err)
-
 	mux := getRegisteredHandler()
 	log.Println("listening on port", ADDRESS)
 	log.Fatal(http.ListenAndServe(ADDRESS, mux))
@@ -35,6 +30,9 @@ func getRegisteredHandler() http.Handler {
 }
 
 func storyHandler(w http.ResponseWriter, r *http.Request) {
+	story, err := parser.ParseStory(StoryFilePath)
+	LogFatalIfErr(err)
+
 	key := extractKey(r)
 	chapter, err := getChapter(story, key)
 	logAndRedirectWhenErr(w, r, err)
