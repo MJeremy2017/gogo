@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+// TODO: fix tests
+
 var testChapter = Chapter{
 	Title: "title",
 	Story: []string{"a black bird"},
