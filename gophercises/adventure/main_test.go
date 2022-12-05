@@ -1,7 +1,6 @@
 package main
 
 import (
-	"adventure/parser"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +9,7 @@ import (
 	"testing"
 )
 
-var testChapter = parser.Chapter{
+var testChapter = Chapter{
 	Title: "title",
 	Story: []string{"a black bird"},
 	Options: []struct {
@@ -20,17 +19,17 @@ var testChapter = parser.Chapter{
 		{"text", "arc"},
 	},
 }
-var testStory = parser.Story{"key1": testChapter}
+var testStory = Story{"key1": testChapter}
 
 func Test_getChapter(t *testing.T) {
 	type args struct {
-		story parser.Story
+		story Story
 		key   string
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    parser.Chapter
+		want    Chapter
 		wantErr bool
 	}{
 		{
@@ -48,13 +47,13 @@ func Test_getChapter(t *testing.T) {
 				story: testStory,
 				key:   "key2",
 			},
-			want:    parser.Chapter{},
+			want:    Chapter{},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getChapter(tt.args.story, tt.args.key)
+			got, err := tt.args.story.getChapter(tt.args.key)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getChapter() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -66,10 +65,11 @@ func Test_getChapter(t *testing.T) {
 	}
 }
 
-func Test_storyHandler(t *testing.T) {
+func Test_storyServeHTTP(t *testing.T) {
 	type args struct {
-		w *httptest.ResponseRecorder
-		r *http.Request
+		story Story
+		w     *httptest.ResponseRecorder
+		r     *http.Request
 	}
 	tests := []struct {
 		name             string
@@ -80,8 +80,9 @@ func Test_storyHandler(t *testing.T) {
 		{
 			name: "can-return-correct-chapter-with-valid-path",
 			args: args{
-				w: httptest.NewRecorder(),
-				r: httptest.NewRequest("GET", "/new-york", nil),
+				story: testStory,
+				w:     httptest.NewRecorder(),
+				r:     httptest.NewRequest("GET", "/new-york", nil),
 			},
 			expectedTitle:    "<h2>Visiting New York</h2>",
 			expectedLocation: "",
@@ -89,8 +90,9 @@ func Test_storyHandler(t *testing.T) {
 		{
 			name: "redirect-to-home-with-invalid-path",
 			args: args{
-				w: httptest.NewRecorder(),
-				r: httptest.NewRequest("GET", "/abc", nil),
+				story: testStory,
+				w:     httptest.NewRecorder(),
+				r:     httptest.NewRequest("GET", "/abc", nil),
 			},
 			expectedTitle:    "<h2></h2>",
 			expectedLocation: "/home",
@@ -100,7 +102,7 @@ func Test_storyHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			w := tt.args.w
 			r := tt.args.r
-			storyHandler(w, r)
+			tt.args.story.ServeHTTP(w, r)
 
 			match := extractTitle(w)
 			assert.Equal(t, tt.expectedTitle, match)
@@ -113,4 +115,12 @@ func Test_storyHandler(t *testing.T) {
 func extractTitle(w *httptest.ResponseRecorder) string {
 	re := regexp.MustCompile(`<h2>(.*)</h2>`)
 	return re.FindString(w.Body.String())
+}
+
+func TestParseStory(t *testing.T) {
+	t.Run("Can parse json", func(t *testing.T) {
+		fp := "story.json"
+		_, err := ParseStory(fp)
+		assert.NoError(t, err, "parse story failed")
+	})
 }
