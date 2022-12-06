@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 const ADDRESS = ":8000"
@@ -66,7 +67,8 @@ func main() {
 }
 
 func extractKey(r *http.Request) string {
-	key := r.URL.Path[1:]
+	var key string
+	key = strings.TrimLeft(r.URL.Path, "/")
 	if len(key) == 0 || key == "home" {
 		return StoryDefaultKey
 	}
