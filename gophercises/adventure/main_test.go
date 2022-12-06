@@ -9,8 +9,6 @@ import (
 	"testing"
 )
 
-// TODO: fix tests
-
 var testChapter = Chapter{
 	Title: "title",
 	Story: []string{"a black bird"},
@@ -84,9 +82,9 @@ func Test_storyServeHTTP(t *testing.T) {
 			args: args{
 				story: testStory,
 				w:     httptest.NewRecorder(),
-				r:     httptest.NewRequest("GET", "/new-york", nil),
+				r:     httptest.NewRequest("GET", "/key1", nil),
 			},
-			expectedTitle:    "<h2>Visiting New York</h2>",
+			expectedTitle:    "<h2>title</h2>",
 			expectedLocation: "",
 		},
 		{
@@ -114,15 +112,15 @@ func Test_storyServeHTTP(t *testing.T) {
 	}
 }
 
-func extractTitle(w *httptest.ResponseRecorder) string {
-	re := regexp.MustCompile(`<h2>(.*)</h2>`)
-	return re.FindString(w.Body.String())
-}
-
 func TestParseStory(t *testing.T) {
 	t.Run("Can parse json", func(t *testing.T) {
 		fp := "story.json"
 		_, err := ParseStory(fp)
 		assert.NoError(t, err, "parse story failed")
 	})
+}
+
+func extractTitle(w *httptest.ResponseRecorder) string {
+	re := regexp.MustCompile(`<h2>(.*)</h2>`)
+	return re.FindString(w.Body.String())
 }
