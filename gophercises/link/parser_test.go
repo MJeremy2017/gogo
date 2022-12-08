@@ -2,7 +2,8 @@ package link
 
 import (
 	"bytes"
-	"reflect"
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -11,6 +12,7 @@ func TestParser_ParseLinks(t *testing.T) {
 		name     string
 		htmlData string
 		want     []Link
+		hasErr   bool
 	}{
 		// TODO: Add test cases.
 		{
@@ -27,14 +29,18 @@ func TestParser_ParseLinks(t *testing.T) {
 					Href: "/dog",
 					Text: "Something in a span Text not in a span Bold text!",
 				}},
+			hasErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := bytes.NewBufferString(tt.htmlData)
 			p := NewParser(buf)
-			if got := p.ParseLinks(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ParseLinks() = %+v, want %+v", got, tt.want)
+			got, err := p.ParseLinks()
+			if tt.hasErr {
+				assert.Error(t, err)
+			} else {
+				assert.Equal(t, got, tt.want, fmt.Sprintf("ParseLinks() = %+v, want %+v", got, tt.want))
 			}
 		})
 	}
