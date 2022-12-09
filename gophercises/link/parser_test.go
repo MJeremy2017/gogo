@@ -14,7 +14,6 @@ func TestParser_ParseLinks(t *testing.T) {
 		want     []Link
 		hasErr   bool
 	}{
-		// TODO: Add test cases.
 		{
 			name: "can-get-link-from-a-single-html-data",
 			htmlData: `
@@ -31,6 +30,32 @@ func TestParser_ParseLinks(t *testing.T) {
 				}},
 			hasErr: false,
 		},
+		// TODO: fix the test
+		{
+			name: "can-get-link-from-multiple-html-data",
+			htmlData: `
+<a href="/dog">
+  <span>Something in a span</span>
+  Text not in a span
+  <b>Bold text!</b>
+</a>
+<a href="/cat">
+  <span>Something in a span</span>
+  <b>Bold text!</b>
+  <div>In a div<div>
+</a>
+`,
+			want: []Link{
+				{
+					Href: "/dog",
+					Text: "Something in a span Text not in a span Bold text!",
+				},
+				{
+					Href: "/cat",
+					Text: "Something in a span Bold text! In a div",
+				}},
+			hasErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -40,7 +65,7 @@ func TestParser_ParseLinks(t *testing.T) {
 			if tt.hasErr {
 				assert.Error(t, err)
 			} else {
-				assert.Equal(t, got, tt.want, fmt.Sprintf("ParseLinks() = %+v, want %+v", got, tt.want))
+				assert.Equal(t, tt.want, got, fmt.Sprintf("ParseLinks() = %+v, want %+v", got, tt.want))
 			}
 		})
 	}
