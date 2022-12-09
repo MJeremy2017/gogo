@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"golang.org/x/net/html"
 	"io"
+	"strings"
 )
 
 type Parser struct {
@@ -20,7 +21,6 @@ func NewParser(html io.Reader) *Parser {
 }
 
 func (p *Parser) ParseLinks() ([]Link, error) {
-	// TODO parse element fix basic test
 	node, err := html.Parse(p.html)
 	if err != nil {
 		return nil, err
@@ -29,11 +29,22 @@ func (p *Parser) ParseLinks() ([]Link, error) {
 	var dfs func(n *html.Node)
 	var links []Link
 	dfs = func(n *html.Node) {
-		fmt.Printf("type: %+v, data: %+v, atom: %+v, attr: %+v", n.Type, n.Data, n.DataAtom.String(), n.Attr)
 		if n.Type == html.ElementNode && n.Data == "a" {
+			var innerText string
+			var strDfs func(n *html.Node)
+			strDfs = func(n *html.Node) {
+				fmt.Printf("inside %+v, %v", n.Type, n.Data)
+				if n.Type == html.TextNode {
+					innerText += strings.TrimSpace(n.Data) + " "
+				}
+				for cc := n.FirstChild; cc != nil; cc = cc.NextSibling {
+					strDfs(cc)
+				}
+			}
+			strDfs(n)
 			lk := Link{
 				Href: n.Attr[0].Val,
-				Text: "",
+				Text: strings.TrimSpace(innerText),
 			}
 			links = append(links, lk)
 		}
