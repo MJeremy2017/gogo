@@ -42,7 +42,6 @@ func TestParser_ParseLinks(t *testing.T) {
 <a href="/cat">
   <span>Something in a span</span>
   <b>Bold text!</b>
-  <div>In a div<div>
 </a>
 `,
 			want: []Link{
@@ -52,7 +51,7 @@ func TestParser_ParseLinks(t *testing.T) {
 				},
 				{
 					Href: "/cat",
-					Text: "Something in a span Bold text! In a div",
+					Text: "Something in a span Bold text!",
 				}},
 			hasErr: false,
 		},

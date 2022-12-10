@@ -32,7 +32,7 @@ func (p *Parser) ParseLinks() ([]Link, error) {
 			var innerText string
 			var strDfs func(n *html.Node)
 			strDfs = func(n *html.Node) {
-				if n.Type == html.TextNode {
+				if n.Type == html.TextNode && strings.TrimSpace(n.Data) != "" {
 					innerText += strings.TrimSpace(n.Data) + " "
 				}
 				for cc := n.FirstChild; cc != nil; cc = cc.NextSibling {
@@ -45,6 +45,7 @@ func (p *Parser) ParseLinks() ([]Link, error) {
 				Text: strings.TrimSpace(innerText),
 			}
 			links = append(links, lk)
+			return
 		}
 		c := n.FirstChild
 		for c != nil {
