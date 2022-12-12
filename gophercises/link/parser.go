@@ -25,26 +25,12 @@ func (p *Parser) ParseLinks() ([]Link, error) {
 		return nil, err
 	}
 
-	var dfs func(n *html.Node)
 	var links []Link
+	var dfs func(n *html.Node)
+
 	dfs = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
-			var innerText string
-			var strDfs func(n *html.Node)
-			strDfs = func(n *html.Node) {
-				trimmedData := strings.TrimSpace(n.Data)
-				if n.Type == html.TextNode && trimmedData != "" {
-					innerText += trimmedData + " "
-				}
-				for cc := n.FirstChild; cc != nil; cc = cc.NextSibling {
-					strDfs(cc)
-				}
-			}
-			strDfs(n)
-			lk := Link{
-				Href: n.Attr[0].Val,
-				Text: strings.TrimSpace(innerText),
-			}
+			lk := p.parseLinkFromNode(n)
 			links = append(links, lk)
 			return
 		}
@@ -55,4 +41,35 @@ func (p *Parser) ParseLinks() ([]Link, error) {
 
 	dfs(node)
 	return links, nil
+}
+
+func (p *Parser) GetLinkFromAttr(attr []html.Attribute) string {
+	for _, a := range attr {
+		if a.Key == "href" {
+			return a.Val
+		}
+	}
+	return ""
+}
+
+func (p *Parser) parseLinkFromNode(n *html.Node) Link {
+	var innerText string
+	var strDfs func(n *html.Node)
+
+	strDfs = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			if !strings.HasSuffix(innerText, " ") {
+				innerText += " "
+			}
+			innerText += strings.TrimSpace(n.Data)
+		}
+		for cc := n.FirstChild; cc != nil; cc = cc.NextSibling {
+			strDfs(cc)
+		}
+	}
+	strDfs(n)
+	return Link{
+		Href: p.GetLinkFromAttr(n.Attr),
+		Text: strings.TrimSpace(innerText),
+	}
 }
