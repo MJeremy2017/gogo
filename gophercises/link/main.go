@@ -1,8 +1,12 @@
 package main
 
-import "link/parser"
+import (
+	"fmt"
+	"link/parser"
+)
 
 func main() {
 	url := "https://www.google.com"
-	parser.BrowseLinks(url)
+	got := parser.BrowseLinks(url)
+	fmt.Println("got", got)
 }

@@ -8,7 +8,9 @@ import (
 	"strings"
 )
 
-func BrowseLinks(url string) {
+func BrowseLinks(url string) []string {
+	var links []string
+	parentUrl := url
 	visited := make(map[string]bool)
 	q := queue.New(1)
 	err := q.Put(url)
@@ -18,14 +20,17 @@ func BrowseLinks(url string) {
 	for q.Len() > 0 {
 		u, _ := q.Get(1)
 		strUrl := u[0].(string)
+		if !strings.Contains(strUrl, "http") && !strings.Contains(strUrl, "https") {
+			strUrl = parentUrl + strUrl
+		}
 		visited[strUrl] = true
-		//TODO saveUrl()
 
 		urls, err := ParseUrlLinks(strUrl)
 		if err != nil {
 			log.Printf("error parsring url %s %v", strUrl, err)
 			continue
 		}
+		links = append(links, strUrl)
 		for _, u := range urls {
 			if !visited[u] {
 				_ = q.Put(u)
@@ -34,9 +39,7 @@ func BrowseLinks(url string) {
 		}
 	}
 
-	// TODO parse links for each html
-	// q = [url]; q.pop(); getLinks(url); q.add(...)
-	//fmt.Println(html)
+	return links
 }
 
 func ParseUrlLinks(url string) ([]string, error) {
