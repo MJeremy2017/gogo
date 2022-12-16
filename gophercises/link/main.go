@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	url := "https://www.google.com"
-	got := parser.BrowseLinks(url)
+	u := "https://www.google.com"
+	got := parser.BrowseLinks(u, 2)
 	fmt.Println("got", got)
 }
