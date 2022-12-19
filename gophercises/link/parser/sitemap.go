@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"github.com/Workiva/go-datastructures/queue"
 	"io/ioutil"
 	"log"
@@ -27,24 +26,24 @@ func BrowseLinks(url string, maxDepth int) []string {
 	for q.Len() > 0 {
 		u, _ := q.Get(1)
 		urlDepth := u[0].(UrlDepth)
-		fullPath := urlDepth.url
+		baseUrl := urlDepth.url
 		currDepth := urlDepth.depth
-		if visited[fullPath] || currDepth > maxDepth {
+		if visited[baseUrl] || currDepth > maxDepth {
 			continue
 		}
-		visited[fullPath] = true
 
-		links = append(links, fullPath)
+		visited[baseUrl] = true
+		links = append(links, baseUrl)
 
-		fmt.Println("processing", fullPath)
-		urls, err := ParseUrlLinks(fullPath)
+		log.Println("processing", baseUrl)
+		urls, err := ParseUrlLinks(baseUrl)
 		if err != nil {
-			log.Printf("error parsring url %s %v", fullPath, err)
+			log.Printf("error parsring url %s %v", baseUrl, err)
 			continue
 		}
 		for _, u := range urls {
 			urlPath := formatUrl(u)
-			fullPath := buildFullPath(parentUrl, urlPath)
+			fullPath := buildFullPath(baseUrl, urlPath)
 			if !visited[fullPath] {
 				_ = q.Put(UrlDepth{fullPath, currDepth + 1})
 			}
@@ -56,7 +55,7 @@ func BrowseLinks(url string, maxDepth int) []string {
 
 func buildFullPath(baseUrl string, path string) string {
 	if isNotValidUrl(path) {
-		return baseUrl + "/" + path
+		return strings.TrimRight(baseUrl, "/") + "/" + path
 	}
 	return path
 }
