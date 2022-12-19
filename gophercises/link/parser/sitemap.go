@@ -21,7 +21,7 @@ func BrowseLinks(url string, maxDepth int) []string {
 	q := queue.New(1)
 	err := q.Put(UrlDepth{parentUrl, 1})
 	if err != nil {
-		log.Fatalf("failed to put url s% %v", url, err)
+		log.Fatalf("failed to put url %s %v", url, err)
 	}
 	for q.Len() > 0 {
 		u, _ := q.Get(1)
