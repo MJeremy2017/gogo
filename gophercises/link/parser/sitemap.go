@@ -1,12 +1,24 @@
 package parser
 
 import (
+	"encoding/xml"
 	"github.com/Workiva/go-datastructures/queue"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 )
+
+type UrlSet struct {
+	XMLName xml.Name `xml:"urlset"`
+	Text    string   `xml:",chardata"`
+	Xmlns   string   `xml:"xmlns,attr"`
+	URL     []struct {
+		Text string `xml:",chardata"`
+		Loc  string `xml:"loc"`
+	} `xml:"url"`
+}
 
 type UrlDepth struct {
 	url   string
@@ -51,6 +63,23 @@ func BrowseLinks(url string, maxDepth int) []string {
 	}
 
 	return links
+}
+
+func EncodeLinksToXML(links []string, w io.Writer) error {
+	var urlSet UrlSet
+	for _, link := range links {
+		urlSet.URL = append(urlSet.URL, struct {
+			Text string `xml:",chardata"`
+			Loc  string `xml:"loc"`
+		}{Loc: link})
+	}
+
+	enc := xml.NewEncoder(w)
+	enc.Indent("", "    ")
+	if err := enc.Encode(urlSet); err != nil {
+		return err
+	}
+	return nil
 }
 
 func buildFullPath(baseUrl string, path string) string {
