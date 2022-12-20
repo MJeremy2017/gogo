@@ -83,9 +83,9 @@ func EncodeLinksToXML(links []string, w io.Writer) error {
 func buildFullPath(baseUrl string, path string) string {
 	b := strings.TrimRight(baseUrl, "/")
 	switch {
-	case !isFullPath(path):
+	case !isAbsPath(path):
 		return b + formatRelativePath(path)
-	case isFullPath(path):
+	case isAbsPath(path):
 		return path
 	}
 	return path
@@ -95,7 +95,7 @@ func formatRelativePath(url string) string {
 	return strings.TrimLeft(url, ".")
 }
 
-func isFullPath(url string) bool {
+func isAbsPath(url string) bool {
 	return strings.HasPrefix(url, "http")
 }
 
