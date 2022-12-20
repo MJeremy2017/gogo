@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const xmlns = "https://www.sitemaps.org/schemas/sitemap/0.9"
+
 type UrlSet struct {
 	XMLName xml.Name `xml:"urlset"`
 	Xmlns   string   `xml:"xmlns,attr"`
@@ -67,6 +69,7 @@ func BrowseLinks(url string, maxDepth int) []string {
 
 func EncodeLinksToXML(links []string, w io.Writer) error {
 	var urlSet UrlSet
+	urlSet.Xmlns = xmlns
 	for _, link := range links {
 		urlSet.URL = append(urlSet.URL, struct {
 			Loc string `xml:"loc"`
