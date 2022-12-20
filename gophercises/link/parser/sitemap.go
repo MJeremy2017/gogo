@@ -12,11 +12,9 @@ import (
 
 type UrlSet struct {
 	XMLName xml.Name `xml:"urlset"`
-	Text    string   `xml:",chardata"`
 	Xmlns   string   `xml:"xmlns,attr"`
 	URL     []struct {
-		Text string `xml:",chardata"`
-		Loc  string `xml:"loc"`
+		Loc string `xml:"loc"`
 	} `xml:"url"`
 }
 
@@ -28,7 +26,7 @@ type UrlDepth struct {
 func BrowseLinks(url string, maxDepth int) []string {
 	var links []string
 	parentUrl := url
-	visited := make(map[string]bool)
+	visited := make(map[string]struct{})
 
 	q := queue.New(1)
 	err := q.Put(UrlDepth{parentUrl, 1})
@@ -40,11 +38,14 @@ func BrowseLinks(url string, maxDepth int) []string {
 		urlDepth := u[0].(UrlDepth)
 		baseUrl := urlDepth.url
 		currDepth := urlDepth.depth
-		if visited[baseUrl] || currDepth > maxDepth {
+		if _, ok := visited[baseUrl]; ok {
+			continue
+		}
+		if currDepth > maxDepth {
 			continue
 		}
 
-		visited[baseUrl] = true
+		visited[baseUrl] = struct{}{}
 		links = append(links, baseUrl)
 
 		log.Println("processing", baseUrl)
@@ -56,7 +57,7 @@ func BrowseLinks(url string, maxDepth int) []string {
 		for _, u := range urls {
 			urlPath := formatUrl(u)
 			fullPath := buildFullPath(baseUrl, urlPath)
-			if !visited[fullPath] {
+			if _, ok := visited[fullPath]; !ok {
 				_ = q.Put(UrlDepth{fullPath, currDepth + 1})
 			}
 		}
@@ -69,11 +70,9 @@ func EncodeLinksToXML(links []string, w io.Writer) error {
 	var urlSet UrlSet
 	for _, link := range links {
 		urlSet.URL = append(urlSet.URL, struct {
-			Text string `xml:",chardata"`
-			Loc  string `xml:"loc"`
+			Loc string `xml:"loc"`
 		}{Loc: link})
 	}
-
 	enc := xml.NewEncoder(w)
 	enc.Indent("", "    ")
 	if err := enc.Encode(urlSet); err != nil {
