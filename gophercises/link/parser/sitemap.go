@@ -55,8 +55,7 @@ func BrowseLinks(url string, maxDepth int) []string {
 			continue
 		}
 		for _, u := range urls {
-			urlPath := formatUrl(u)
-			fullPath := buildFullPath(baseUrl, urlPath)
+			fullPath := buildFullPath(baseUrl, u)
 			if _, ok := visited[fullPath]; !ok {
 				_ = q.Put(UrlDepth{fullPath, currDepth + 1})
 			}
@@ -82,21 +81,22 @@ func EncodeLinksToXML(links []string, w io.Writer) error {
 }
 
 func buildFullPath(baseUrl string, path string) string {
-	if isNotValidUrl(path) {
-		return strings.TrimRight(baseUrl, "/") + "/" + path
+	b := strings.TrimRight(baseUrl, "/")
+	switch {
+	case !isFullPath(path):
+		return b + formatRelativePath(path)
+	case isFullPath(path):
+		return path
 	}
 	return path
 }
 
-func formatUrl(url string) string {
-	if isNotValidUrl(url) {
-		url = strings.TrimLeft(strings.TrimLeft(url, "."), "/")
-	}
-	return url
+func formatRelativePath(url string) string {
+	return strings.TrimLeft(url, ".")
 }
 
-func isNotValidUrl(url string) bool {
-	return !strings.Contains(url, "http") && !strings.Contains(url, "https")
+func isFullPath(url string) bool {
+	return strings.HasPrefix(url, "http")
 }
 
 func ParseUrlLinks(url string) ([]string, error) {
