@@ -6,9 +6,11 @@ package hn_test
 import (
 	"fmt"
 	"hn"
+	"testing"
 )
 
-func ExampleClient() {
+// Test public facing interface
+func TestClient(t *testing.T) {
 	var client hn.Client
 	ids, err := client.TopItems()
 	if err != nil {

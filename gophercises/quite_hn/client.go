@@ -63,6 +63,13 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
+// TODO write get batch items async
+
+func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
+
+	return nil, nil
+}
+
 // Item represents a single item returned by the HN API. This can have a type
 // of "story", "comment", or "job" (and probably more values), and one of the
 // URL or Text fields will be set, but not both.
