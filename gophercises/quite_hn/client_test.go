@@ -2,6 +2,7 @@ package hn
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,6 +13,7 @@ func setup() (string, func()) {
 	mux.HandleFunc("/topstories.json", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprint(w, "[0,1,2,3,4]")
 	})
+	// TODO handle return with id in the request
 	mux.HandleFunc("/item/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprint(w, "{\"by\":\"test_user\",\"descendants\":10,\"id\":1,\"kids\":[16732999,16729637,16729517,16729595],\"score\":34,\"time\":1522599083,\"title\":\"Test Story Title\",\"type\":\"story\",\"url\":\"https://www.test-story.com\"}")
 	})
@@ -61,4 +63,25 @@ func TestClient_GetItem(t *testing.T) {
 	if item.By != "test_user" {
 		t.Errorf("item.By: want %s, got %s", "test_user", item.By)
 	}
+}
+
+func TestClient_GetBatchItems(t *testing.T) {
+	baseURL, teardown := setup()
+	defer teardown()
+
+	c := Client{
+		apiBase: baseURL,
+	}
+	wantIds := []int{1, 2, 3, 4, 5}
+	items, err := c.GetBatchItems(wantIds)
+	if err != nil {
+		t.Errorf("client.BatchItems() received an error: %s", err.Error())
+	}
+
+	var gotIds []int
+	for _, item := range items {
+		gotIds = append(gotIds, item.ID)
+	}
+	assert.Equal(t, len(wantIds), len(gotIds))
+	assert.Equal(t, wantIds, gotIds)
 }

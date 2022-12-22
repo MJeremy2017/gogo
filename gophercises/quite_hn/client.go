@@ -3,6 +3,7 @@ package hn
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -63,11 +64,21 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
+// Have a Type of "story". This filters out all job postings and other types of items.
+// Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
 // TODO write get batch items async
-
+// Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
 func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
-
-	return nil, nil
+	var items []Item
+	for _, id := range ids {
+		item, err := c.GetItem(id)
+		if err != nil {
+			log.Printf("error when fetching id %d %v", id, err)
+			continue
+		}
+		items = append(items, item)
+	}
+	return items, nil
 }
 
 // Item represents a single item returned by the HN API. This can have a type
