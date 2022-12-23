@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -13,14 +14,19 @@ func setup() (string, func()) {
 	mux.HandleFunc("/topstories.json", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprint(w, "[0,1,2,3,4]")
 	})
-	// TODO handle return with id in the request
 	mux.HandleFunc("/item/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprint(w, "{\"by\":\"test_user\",\"descendants\":10,\"id\":1,\"kids\":[16732999,16729637,16729517,16729595],\"score\":34,\"time\":1522599083,\"title\":\"Test Story Title\",\"type\":\"story\",\"url\":\"https://www.test-story.com\"}")
+		id := getId(r)
+		_, _ = fmt.Fprint(w, fmt.Sprintf("{\"by\":\"test_user\",\"descendants\":10,\"id\": %s,\"kids\":[16732999,16729637,16729517,16729595],\"score\":34,\"time\":1522599083,\"title\":\"Test Story Title\",\"type\":\"story\",\"url\":\"https://www.test-story.com\"}", id))
 	})
 	server := httptest.NewServer(mux)
 	return server.URL, func() {
 		server.Close()
 	}
+}
+
+func getId(r *http.Request) string {
+	s := strings.Split(r.URL.Path, "/")
+	return strings.TrimRight(s[len(s)-1], ".json")
 }
 
 func TestClient_TopItems(t *testing.T) {

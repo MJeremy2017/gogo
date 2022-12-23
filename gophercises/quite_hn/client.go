@@ -52,6 +52,7 @@ func (c *Client) GetItem(id int) (Item, error) {
 	c.defaultify()
 	var item Item
 	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
+	fmt.Println("resp", resp)
 	if err != nil {
 		return item, err
 	}
