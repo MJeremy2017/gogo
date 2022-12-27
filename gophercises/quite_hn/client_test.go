@@ -91,3 +91,42 @@ func TestClient_GetBatchItems(t *testing.T) {
 	assert.Equal(t, len(wantIds), len(gotIds))
 	assert.Equal(t, wantIds, gotIds)
 }
+
+func TestClient_FilterStories(t *testing.T) {
+	c := &Client{}
+
+	tests := []struct {
+		name  string
+		items []Item
+		want  []Item
+	}{
+		{
+			"filter-stories",
+			[]Item{
+				{
+					ID:   1,
+					URL:  "abc",
+					Type: "story",
+				},
+				{
+					ID:   2,
+					URL:  "ab",
+					Type: "comments",
+				},
+			},
+			[]Item{
+				{
+					ID:   1,
+					URL:  "abc",
+					Type: "story",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, c.FilterStories(tt.items), "FilterStories(%v)", tt.items)
+		})
+	}
+}

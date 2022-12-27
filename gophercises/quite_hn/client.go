@@ -68,10 +68,7 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
-// Have a Type of "story". This filters out all job postings and other types of items.
-// Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
-// TODO write get batch items async
-// Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
+// TODO Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
 // 1. get more items in ordered sequence; 2. filter 3. return first 30
 
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
@@ -80,7 +77,7 @@ func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
 	ch := make(chan IndexedItem, size)
 	items := make([]Item, size)
 	for i, id := range ids {
-		go c.fetchItem(i, id, ch)
+		go c.asyncFetchItem(i, id, ch)
 	}
 	cnt := 0
 	for it := range ch {
@@ -93,7 +90,7 @@ func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
 	return items, nil
 }
 
-func (c *Client) fetchItem(i, id int, ch chan IndexedItem) {
+func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
 	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
 	if err != nil {
 		ch <- IndexedItem{i, Item{}}
@@ -109,6 +106,23 @@ func (c *Client) fetchItem(i, id int, ch chan IndexedItem) {
 		return
 	}
 	ch <- IndexedItem{i, item}
+}
+
+// FilterStories filters items and get stories
+// Have a Type of "story". This filters out all job postings and other types of items.
+// Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
+func (c *Client) FilterStories(items []Item) []Item {
+	var isStory = func(item Item) bool {
+		return item.Type == "story" && item.URL != ""
+	}
+
+	var res []Item
+	for _, item := range items {
+		if isStory(item) {
+			res = append(res, item)
+		}
+	}
+	return res
 }
 
 // Item represents a single item returned by the HN API. This can have a type
