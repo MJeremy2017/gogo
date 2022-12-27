@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const numStories = 30
+
 // Test public facing interface
 func TestAsyncClient(t *testing.T) {
 	var client hn.Client
@@ -20,12 +22,12 @@ func TestAsyncClient(t *testing.T) {
 	}
 
 	startTime := time.Now()
-	items, err := client.GetOrderedBatchItems(ids[:30])
+	items, err := client.GetOrderedBatchItems(ids[:numStories*2])
 	if err != nil {
 		panic(err)
 	}
 
-	items = client.FilterStories(items)
+	items = client.FilterStories(items, numStories)
 	fmt.Printf("Total stories %d \n", len(items))
 	for _, item := range items {
 		fmt.Printf("%s (by %s)\n", item.Title, item.By)
@@ -41,7 +43,7 @@ func TestClient(t *testing.T) {
 	}
 
 	startTime := time.Now()
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 5; i++ {
 		item, err := client.GetItem(ids[i])
 		if err != nil {
 			panic(err)

@@ -108,10 +108,10 @@ func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
 	ch <- IndexedItem{i, item}
 }
 
-// FilterStories filters items and get stories
+// FilterStories filters items and get stories (This function retains the original orders)
 // Have a Type of "story". This filters out all job postings and other types of items.
 // Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
-func (c *Client) FilterStories(items []Item) []Item {
+func (c *Client) FilterStories(items []Item, n int) []Item {
 	var isStory = func(item Item) bool {
 		return item.Type == "story" && item.URL != ""
 	}
@@ -122,7 +122,10 @@ func (c *Client) FilterStories(items []Item) []Item {
 			res = append(res, item)
 		}
 	}
-	return res
+	if len(res) < n {
+		return res
+	}
+	return res[:n]
 }
 
 // Item represents a single item returned by the HN API. This can have a type

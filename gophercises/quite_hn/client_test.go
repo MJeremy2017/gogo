@@ -98,6 +98,7 @@ func TestClient_FilterStories(t *testing.T) {
 	tests := []struct {
 		name  string
 		items []Item
+		n     int
 		want  []Item
 	}{
 		{
@@ -114,6 +115,7 @@ func TestClient_FilterStories(t *testing.T) {
 					Type: "comments",
 				},
 			},
+			2,
 			[]Item{
 				{
 					ID:   1,
@@ -126,7 +128,7 @@ func TestClient_FilterStories(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, c.FilterStories(tt.items), "FilterStories(%v)", tt.items)
+			assert.Equalf(t, tt.want, c.FilterStories(tt.items, tt.n), "FilterStories(%v)", tt.items)
 		})
 	}
 }
