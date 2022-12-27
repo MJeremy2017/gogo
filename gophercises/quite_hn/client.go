@@ -3,7 +3,6 @@ package hn
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -52,7 +51,6 @@ func (c *Client) GetItem(id int) (Item, error) {
 	c.defaultify()
 	var item Item
 	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
-	fmt.Println("resp", resp)
 	if err != nil {
 		return item, err
 	}
@@ -70,14 +68,34 @@ func (c *Client) GetItem(id int) (Item, error) {
 // TODO write get batch items async
 // Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
 func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
+	ch := make(chan Item, 0)
 	var items []Item
 	for _, id := range ids {
-		item, err := c.GetItem(id)
-		if err != nil {
-			log.Printf("error when fetching id %d %v", id, err)
-			continue
-		}
+		go func(id int) {
+			resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
+			if err != nil {
+				ch <- Item{}
+				return
+			}
+			defer resp.Body.Close()
+
+			var item Item
+			dec := json.NewDecoder(resp.Body)
+			err = dec.Decode(&item)
+			if err != nil {
+				ch <- Item{}
+				return
+			}
+			ch <- item
+		}(id)
+	}
+	cnt := 0
+	for item := range ch {
 		items = append(items, item)
+		cnt += 1
+		if cnt == len(ids) {
+			break
+		}
 	}
 	return items, nil
 }
