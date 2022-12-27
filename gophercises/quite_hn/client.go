@@ -10,6 +10,11 @@ const (
 	apiBase = "https://hacker-news.firebaseio.com/v0"
 )
 
+type IndexedItem struct {
+	index int
+	item  Item
+}
+
 // Client is an API client used to interact with the Hacker News API
 type Client struct {
 	// unexported fields...
@@ -67,14 +72,16 @@ func (c *Client) GetItem(id int) (Item, error) {
 // Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
 // TODO write get batch items async
 // Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
+// 1. get more items in ordered sequence; 2. filter 3. return first 30
 func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
-	ch := make(chan Item, 0)
-	var items []Item
-	for _, id := range ids {
-		go func(id int) {
+	size := len(ids)
+	ch := make(chan IndexedItem, size)
+	items := make([]Item, size)
+	for i, id := range ids {
+		go func(i, id int) {
 			resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
 			if err != nil {
-				ch <- Item{}
+				ch <- IndexedItem{i, Item{}}
 				return
 			}
 			defer resp.Body.Close()
@@ -83,15 +90,15 @@ func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
 			dec := json.NewDecoder(resp.Body)
 			err = dec.Decode(&item)
 			if err != nil {
-				ch <- Item{}
+				ch <- IndexedItem{i, Item{}}
 				return
 			}
-			ch <- item
-		}(id)
+			ch <- IndexedItem{i, item}
+		}(i, id)
 	}
 	cnt := 0
-	for item := range ch {
-		items = append(items, item)
+	for it := range ch {
+		items[it.index] = it.item
 		cnt += 1
 		if cnt == len(ids) {
 			break
