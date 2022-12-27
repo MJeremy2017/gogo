@@ -79,7 +79,7 @@ func TestClient_GetBatchItems(t *testing.T) {
 		apiBase: baseURL,
 	}
 	wantIds := []int{1, 2, 3, 4, 5}
-	items, err := c.GetBatchItems(wantIds)
+	items, err := c.GetOrderedBatchItems(wantIds)
 	if err != nil {
 		t.Errorf("client.BatchItems() received an error: %s", err.Error())
 	}

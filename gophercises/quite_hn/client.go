@@ -73,28 +73,14 @@ func (c *Client) GetItem(id int) (Item, error) {
 // TODO write get batch items async
 // Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
 // 1. get more items in ordered sequence; 2. filter 3. return first 30
-func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
+
+// GetOrderedBatchItems grab items asynchronously and return the items in its original order
+func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
 	size := len(ids)
 	ch := make(chan IndexedItem, size)
 	items := make([]Item, size)
 	for i, id := range ids {
-		go func(i, id int) {
-			resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
-			if err != nil {
-				ch <- IndexedItem{i, Item{}}
-				return
-			}
-			defer resp.Body.Close()
-
-			var item Item
-			dec := json.NewDecoder(resp.Body)
-			err = dec.Decode(&item)
-			if err != nil {
-				ch <- IndexedItem{i, Item{}}
-				return
-			}
-			ch <- IndexedItem{i, item}
-		}(i, id)
+		go c.fetchItem(i, id, ch)
 	}
 	cnt := 0
 	for it := range ch {
@@ -105,6 +91,24 @@ func (c *Client) GetBatchItems(ids []int) ([]Item, error) {
 		}
 	}
 	return items, nil
+}
+
+func (c *Client) fetchItem(i, id int, ch chan IndexedItem) {
+	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
+	if err != nil {
+		ch <- IndexedItem{i, Item{}}
+		return
+	}
+	defer resp.Body.Close()
+
+	var item Item
+	dec := json.NewDecoder(resp.Body)
+	err = dec.Decode(&item)
+	if err != nil {
+		ch <- IndexedItem{i, Item{}}
+		return
+	}
+	ch <- IndexedItem{i, item}
 }
 
 // Item represents a single item returned by the HN API. This can have a type
