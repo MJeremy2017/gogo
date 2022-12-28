@@ -29,6 +29,25 @@ func (c *Client) defaultify() {
 	}
 }
 
+func (c *Client) GetTopStories(numStories int) ([]Item, error) {
+	ids, err := c.TopItems()
+	if err != nil {
+		return nil, err
+	}
+	i := 0
+	var result []Item
+	for len(result) < numStories {
+		need := (numStories - len(result)) * 5 / 4
+		items := c.GetOrderedBatchItems(ids[i : i+need])
+		stories := c.FilterStories(items)
+		for _, story := range stories {
+			result = append(result, story)
+		}
+		i += need
+	}
+	return result[:numStories], nil
+}
+
 // TopItems returns the ids of roughly 450 top items in decreasing order. These
 // should map directly to the top 450 things you would see on HN if you visited
 // their site and kept going to the next page.
@@ -68,11 +87,10 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
-// TODO use sync.Mutex to counter the number of stories async
 // TODO add caching
 
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
-func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
+func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 	size := len(ids)
 	ch := make(chan IndexedItem, size)
 	items := make([]Item, size)
@@ -87,61 +105,7 @@ func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
 			break
 		}
 	}
-	return items, nil
-}
-
-// GetNOrderedBatchItems grab items asynchronously and return the top N items in its original order from ids
-func (c *Client) GetNOrderedBatchItems(ids []int, n int) ([]Item, error) {
-	size := len(ids)
-	ch := make(chan IndexedItem, size)
-	items := make([]Item, size)
-	i := 0
-	succeedCnt := make(chan int)
-	for i < size {
-		fmt.Println("got i", i)
-		go func(index int) {
-			sc := <-succeedCnt
-			fmt.Println("sccc", sc, n)
-			if sc >= n {
-				close(ch)
-				return
-			}
-			resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, ids[index]))
-			if err != nil {
-				ch <- IndexedItem{index, Item{}}
-				return
-			}
-			defer resp.Body.Close()
-
-			var item Item
-			dec := json.NewDecoder(resp.Body)
-			err = dec.Decode(&item)
-			if err != nil {
-				ch <- IndexedItem{index, Item{}}
-				return
-			}
-			ch <- IndexedItem{index, item}
-			succeedCnt <- sc + 1
-		}(i)
-		i += 1
-	}
-	succeedCnt <- 0
-	total := 0
-	for it := range ch {
-		items[it.index] = it.item
-		total += 1
-		if total >= size {
-			fmt.Println("break", total)
-			break
-		}
-	}
-	var filteredItems []Item
-	for _, item := range items {
-		if item.ID != 0 {
-			filteredItems = append(filteredItems, item)
-		}
-	}
-	return filteredItems, nil
+	return items
 }
 
 func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
@@ -166,7 +130,7 @@ func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
 // FilterStories filters items and get stories (This function retains the original orders)
 // Have a Type of "story". This filters out all job postings and other types of items.
 // Have a URL instead of Text. This filters out things like Ask HN questions and other discussions.
-func (c *Client) FilterStories(items []Item, n int) []Item {
+func (c *Client) FilterStories(items []Item) []Item {
 	var isStory = func(item Item) bool {
 		return item.Type == "story" && item.URL != ""
 	}
@@ -177,10 +141,7 @@ func (c *Client) FilterStories(items []Item, n int) []Item {
 			res = append(res, item)
 		}
 	}
-	if len(res) < n {
-		return res
-	}
-	return res[:n]
+	return res
 }
 
 // Item represents a single item returned by the HN API. This can have a type

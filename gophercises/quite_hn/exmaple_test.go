@@ -22,15 +22,11 @@ func TestAsyncClient(t *testing.T) {
 	}
 
 	startTime := time.Now()
-	items, err := client.GetOrderedBatchItems(ids[:numStories*2])
-	if err != nil {
-		panic(err)
-	}
-
-	items = client.FilterStories(items, numStories)
+	items := client.GetOrderedBatchItems(ids[:numStories])
+	stories := client.FilterStories(items)
 	fmt.Printf("Total stories %d \n", len(items))
-	for _, item := range items {
-		fmt.Printf("%s (by %s)\n", item.Title, item.By)
+	for _, s := range stories {
+		fmt.Printf("%s (by %s)\n", s.Title, s.By)
 	}
 	fmt.Printf("Total time %vs\n", NanoToSeconds(time.Since(startTime)))
 }
