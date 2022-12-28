@@ -5,7 +5,7 @@ package hn_test
 
 import (
 	"fmt"
-	"hn"
+	"hn/hn"
 	"math"
 	"testing"
 	"time"
