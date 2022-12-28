@@ -45,6 +45,9 @@ func (c *Client) GetTopStories(numStories int) ([]Item, error) {
 		}
 		i += need
 	}
+	if len(result) < numStories {
+		return result, nil
+	}
 	return result[:numStories], nil
 }
 
