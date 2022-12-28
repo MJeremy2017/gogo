@@ -92,6 +92,28 @@ func TestClient_GetBatchItems(t *testing.T) {
 	assert.Equal(t, wantIds, gotIds)
 }
 
+func TestClient_GetNBatchItems(t *testing.T) {
+	baseURL, teardown := setup()
+	defer teardown()
+
+	c := Client{
+		apiBase: baseURL,
+	}
+	Ids := []int{1, 2, 3, 4, 5}
+	n := 3
+	items, err := c.GetNOrderedBatchItems(Ids, n)
+	if err != nil {
+		t.Errorf("client.BatchItems() received an error: %s", err.Error())
+	}
+
+	var gotIds []int
+	for _, item := range items {
+		gotIds = append(gotIds, item.ID)
+	}
+	assert.Equal(t, n, len(gotIds))
+	assert.Equal(t, []int{1, 2, 3}, gotIds)
+}
+
 func TestClient_FilterStories(t *testing.T) {
 	c := &Client{}
 

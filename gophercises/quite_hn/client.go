@@ -68,8 +68,8 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
-// TODO Async get top 30 * 1.5 items, and then for loop and filter first 30 stories
-// 1. get more items in ordered sequence; 2. filter 3. return first 30
+// TODO use sync.Mutex to counter the number of stories async
+// TODO add caching
 
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
 func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
@@ -90,7 +90,62 @@ func (c *Client) GetOrderedBatchItems(ids []int) ([]Item, error) {
 	return items, nil
 }
 
+// GetNOrderedBatchItems grab items asynchronously and return the top N items in its original order from ids
+func (c *Client) GetNOrderedBatchItems(ids []int, n int) ([]Item, error) {
+	size := len(ids)
+	ch := make(chan IndexedItem, size)
+	items := make([]Item, size)
+	i := 0
+	succeedCnt := make(chan int)
+	for i < size {
+		fmt.Println("got i", i)
+		go func(index int) {
+			sc := <-succeedCnt
+			fmt.Println("sccc", sc, n)
+			if sc >= n {
+				close(ch)
+				return
+			}
+			resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, ids[index]))
+			if err != nil {
+				ch <- IndexedItem{index, Item{}}
+				return
+			}
+			defer resp.Body.Close()
+
+			var item Item
+			dec := json.NewDecoder(resp.Body)
+			err = dec.Decode(&item)
+			if err != nil {
+				ch <- IndexedItem{index, Item{}}
+				return
+			}
+			ch <- IndexedItem{index, item}
+			succeedCnt <- sc + 1
+		}(i)
+		i += 1
+	}
+	succeedCnt <- 0
+	total := 0
+	for it := range ch {
+		items[it.index] = it.item
+		total += 1
+		if total >= size {
+			fmt.Println("break", total)
+			break
+		}
+	}
+	var filteredItems []Item
+	for _, item := range items {
+		if item.ID != 0 {
+			filteredItems = append(filteredItems, item)
+		}
+	}
+	return filteredItems, nil
+}
+
 func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
+	// `i` is the index of item `id`
 	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
 	if err != nil {
 		ch <- IndexedItem{i, Item{}}
