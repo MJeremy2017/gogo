@@ -3,7 +3,9 @@ package hn
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 )
 
 const (
@@ -19,6 +21,41 @@ type IndexedItem struct {
 type Client struct {
 	// unexported fields...
 	apiBase string
+	cache   *Cache
+}
+
+func NewCacheClient(expirationSec int64) *Client {
+	return &Client{
+		apiBase: apiBase,
+		cache:   NewCache(expirationSec),
+	}
+}
+
+type Cache struct {
+	stories       []Item
+	createdAt     time.Time
+	expirationSec int64
+}
+
+func (c *Cache) GetStories() ([]Item, error) {
+	if c.createdAt.IsZero() {
+		return nil, fmt.Errorf("zero creation time %v", c.createdAt)
+	}
+	lapse := int64(time.Now().Sub(c.createdAt).Seconds())
+	if lapse > c.expirationSec {
+		return nil, fmt.Errorf("cache expired %d > %d", lapse, c.expirationSec)
+	}
+	return c.stories, nil
+}
+
+func (c *Cache) UpdateStories(stories []Item) {
+	c.stories = stories
+	c.createdAt = time.Now()
+	log.Printf("stories cached at %v", c.createdAt)
+}
+
+func NewCache(expirationSec int64) *Cache {
+	return &Cache{expirationSec: expirationSec}
 }
 
 // Making the Client zero value useful without forcing users to do something
@@ -30,6 +67,11 @@ func (c *Client) defaultify() {
 }
 
 func (c *Client) GetTopStories(numStories int) ([]Item, error) {
+	stories, err := c.cache.GetStories()
+	if err == nil {
+		log.Printf("using cached stories retrieved at %v \n", c.cache.createdAt)
+		return stories, nil
+	}
 	ids, err := c.TopItems()
 	if err != nil {
 		return nil, err
@@ -45,6 +87,7 @@ func (c *Client) GetTopStories(numStories int) ([]Item, error) {
 		}
 		i += need
 	}
+	c.cache.UpdateStories(result)
 	if len(result) < numStories {
 		return result, nil
 	}
