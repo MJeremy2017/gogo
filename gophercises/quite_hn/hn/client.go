@@ -72,6 +72,7 @@ func (c *Client) GetTopStories(numStories int) ([]Item, error) {
 		log.Printf("using cached stories retrieved at %v \n", c.cache.createdAt)
 		return stories, nil
 	}
+	log.Println(err)
 	ids, err := c.TopItems()
 	if err != nil {
 		return nil, err

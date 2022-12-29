@@ -28,10 +28,9 @@ func main() {
 }
 
 func handler(numStories int, tpl *template.Template) http.HandlerFunc {
+	client := hn.NewCacheClient(60)
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		var client hn.Client
-
 		items, err := client.GetTopStories(numStories)
 		if err != nil {
 			http.Error(w, "Failed to load top stories", http.StatusInternalServerError)
