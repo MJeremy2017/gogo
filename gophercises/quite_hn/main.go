@@ -31,17 +31,13 @@ func handler(numStories int, tpl *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		var client hn.Client
-		ids, err := client.TopItems()
+
+		items, err := client.GetTopStories(numStories)
 		if err != nil {
 			http.Error(w, "Failed to load top stories", http.StatusInternalServerError)
-			return
 		}
 		var stories []item
-		for _, id := range ids {
-			hnItem, err := client.GetItem(id)
-			if err != nil {
-				continue
-			}
+		for _, hnItem := range items {
 			item := parseHNItem(hnItem)
 			if isStoryLink(item) {
 				stories = append(stories, item)
