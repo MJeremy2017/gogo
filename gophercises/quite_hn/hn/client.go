@@ -17,6 +17,11 @@ type IndexedItem struct {
 	item  Item
 }
 
+type task struct {
+	index int
+	id    int
+}
+
 // Client is an API client used to interact with the Hacker News API
 type Client struct {
 	// unexported fields...
@@ -134,16 +139,22 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
-// TODO add caching
-
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
 func (c *Client) GetOrderedBatchItems(ids []int) []Item {
+	const numGo = 10
+	taskChan := make(chan task, len(ids))
 	size := len(ids)
 	ch := make(chan IndexedItem, size)
 	items := make([]Item, size)
-	for i, id := range ids {
-		go c.asyncFetchItem(i, id, ch)
+
+	for i := 0; i < numGo; i++ {
+		go c.asyncFetchItem(taskChan, ch)
 	}
+
+	for i, id := range ids {
+		taskChan <- task{i, id}
+	}
+	close(taskChan)
 	cnt := 0
 	for it := range ch {
 		items[it.index] = it.item
@@ -155,23 +166,25 @@ func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 	return items
 }
 
-func (c *Client) asyncFetchItem(i, id int, ch chan IndexedItem) {
+func (c *Client) asyncFetchItem(taskChan chan task, ch chan IndexedItem) {
 	// `i` is the index of item `id`
-	resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, id))
-	if err != nil {
-		ch <- IndexedItem{i, Item{}}
-		return
-	}
-	defer resp.Body.Close()
+	for task := range taskChan {
+		resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, task.id))
+		if err != nil {
+			ch <- IndexedItem{task.index, Item{}}
+			return
+		}
+		defer resp.Body.Close()
 
-	var item Item
-	dec := json.NewDecoder(resp.Body)
-	err = dec.Decode(&item)
-	if err != nil {
-		ch <- IndexedItem{i, Item{}}
-		return
+		var item Item
+		dec := json.NewDecoder(resp.Body)
+		err = dec.Decode(&item)
+		if err != nil {
+			ch <- IndexedItem{task.index, Item{}}
+			return
+		}
+		ch <- IndexedItem{task.index, item}
 	}
-	ch <- IndexedItem{i, item}
 }
 
 // FilterStories filters items and get stories (This function retains the original orders)

@@ -15,20 +15,6 @@ import (
 const numStories = 30
 
 // Test public facing interface
-func TestAsyncClient(t *testing.T) {
-	var client hn.Client
-
-	startTime := time.Now()
-	stories, err := client.GetTopStories(numStories)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	for _, s := range stories {
-		fmt.Printf("%s (by %s)\n", s.Title, s.By)
-	}
-	fmt.Printf("Total time %vs\n", NanoToSeconds(time.Since(startTime)))
-}
-
 func TestCachedClient(t *testing.T) {
 	client := hn.NewCacheClient(60)
 
