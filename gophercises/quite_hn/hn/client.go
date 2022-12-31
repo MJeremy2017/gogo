@@ -144,7 +144,6 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
-// TODO check solution
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
 func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 	const numGo = 10
@@ -179,18 +178,18 @@ func (c *Client) asyncFetchItem(taskChan <-chan task, ch chan IndexedItem) {
 		resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, task.id))
 		if err != nil {
 			ch <- IndexedItem{task.index, Item{}}
-			return
+			continue
 		}
-		defer resp.Body.Close()
 
 		var item Item
 		dec := json.NewDecoder(resp.Body)
 		err = dec.Decode(&item)
 		if err != nil {
 			ch <- IndexedItem{task.index, Item{}}
-			return
+			continue
 		}
 		ch <- IndexedItem{task.index, item}
+		log.Print(resp.Body.Close())
 	}
 }
 
