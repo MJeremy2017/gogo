@@ -72,7 +72,8 @@ func (c *Client) defaultify() {
 }
 
 func (c *Client) GetTopStories(numStories int) ([]Item, error) {
-	stories, err := c.cache.GetStories()
+	// Law of Demeter
+	stories, err := c.getCache().GetStories()
 	if err == nil {
 		log.Printf("using cached stories retrieved at %v \n", c.cache.createdAt)
 		return stories, nil
@@ -93,11 +94,15 @@ func (c *Client) GetTopStories(numStories int) ([]Item, error) {
 		}
 		i += need
 	}
-	c.cache.UpdateStories(result)
+	c.getCache().UpdateStories(result)
 	if len(result) < numStories {
 		return result, nil
 	}
 	return result[:numStories], nil
+}
+
+func (c *Client) getCache() *Cache {
+	return c.cache
 }
 
 // TopItems returns the ids of roughly 450 top items in decreasing order. These
@@ -139,6 +144,7 @@ func (c *Client) GetItem(id int) (Item, error) {
 	return item, nil
 }
 
+// TODO check solution
 // GetOrderedBatchItems grab items asynchronously and return the items in its original order
 func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 	const numGo = 10
@@ -155,6 +161,7 @@ func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 		taskChan <- task{i, id}
 	}
 	close(taskChan)
+
 	cnt := 0
 	for it := range ch {
 		items[it.index] = it.item
@@ -166,7 +173,7 @@ func (c *Client) GetOrderedBatchItems(ids []int) []Item {
 	return items
 }
 
-func (c *Client) asyncFetchItem(taskChan chan task, ch chan IndexedItem) {
+func (c *Client) asyncFetchItem(taskChan <-chan task, ch chan IndexedItem) {
 	// `i` is the index of item `id`
 	for task := range taskChan {
 		resp, err := http.Get(fmt.Sprintf("%s/item/%d.json", c.apiBase, task.id))
