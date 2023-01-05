@@ -1,1 +1,7 @@
-package scrape_test
+package scrape
+
+import "fmt"
+
+func get() {
+	fmt.Println("hello")
+}
