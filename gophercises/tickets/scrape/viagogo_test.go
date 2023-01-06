@@ -1,23 +1,24 @@
-package scrape_test
+package scrape
 
 import (
-	"fmt"
-	"github.com/gocolly/colly"
+	"net/url"
+	"reflect"
 	"testing"
 )
 
-func TestA(t *testing.T) {
-	fmt.Println("h")
-	c := colly.NewCollector()
-
-	// Find and visit all links
-	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		e.Request.Visit(e.Attr("href"))
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
-
-	c.Visit("http://go-colly.org/")
+func TestScraper_FindCategory(t *testing.T) {
+	tests := []struct {
+		name string
+		want map[string]url.URL
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Scraper{}
+			if got := s.FindCategory(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FindCategory() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

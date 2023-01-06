@@ -1,7 +1,17 @@
 package scrape
 
-import "fmt"
+import (
+	"net/url"
+)
 
-func get() {
-	fmt.Println("hello")
+// scrape all the categories
+const baseUrl = "https://www.viagogo.com"
+
+type Scraper struct {
+}
+
+func (s *Scraper) FindCategory() map[string]url.URL {
+	//_ := colly.NewCollector()
+
+	return nil
 }
