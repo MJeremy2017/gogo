@@ -1,17 +1,33 @@
 package scrape
 
 import (
-	"net/url"
+	"github.com/gocolly/colly"
+	"path"
 )
 
-// scrape all the categories
-const baseUrl = "https://www.viagogo.com"
+const categoryQuery = ".prinav a[href]"
 
 type Scraper struct {
+	baseUrl string
 }
 
-func (s *Scraper) FindCategory() map[string]url.URL {
-	//_ := colly.NewCollector()
+func NewScraper(baseUrl string) *Scraper {
+	return &Scraper{baseUrl: baseUrl}
+}
 
-	return nil
+// FindCategory returns a map with key `category name` and value `full path of url`
+func (s *Scraper) FindCategory() (map[string]string, error) {
+	res := make(map[string]string)
+
+	c := colly.NewCollector()
+	c.OnHTML(categoryQuery, func(e *colly.HTMLElement) {
+		relativePath := e.Attr("href")
+		res[e.Text] = path.Join(e.Request.URL.String(), relativePath)
+	})
+
+	err := c.Visit(s.baseUrl)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
