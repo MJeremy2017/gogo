@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"path"
 	"testing"
 )
 
@@ -33,6 +32,23 @@ func setUp() *httptest.Server {
 `
 		_, _ = fmt.Fprint(w, data)
 	})
+	mux.HandleFunc("/sg/Concert-Tickets", func(w http.ResponseWriter, r *http.Request) {
+		data := `
+<!doctype html>
+<html>
+<div class="bMag3 pbxxxl pb0-s">
+        <div class="pgw">
+            <h1 class="mbxs ibk t cWht xxl xl-s ">Concert Tickets</h1>
+            <ul class="cloud">
+                    <li><a href="/sg/Concert-Tickets/Clubs-and-Dance">Club and dance </a></li>
+                    <li><a href="/sg/Theater-Tickets/Flamenco">Flamenco </a></li>
+            </ul>
+        </div>
+</div>
+</html>
+`
+		_, _ = fmt.Fprint(w, data)
+	})
 
 	return httptest.NewServer(mux)
 }
@@ -43,13 +59,28 @@ func TestScraper_FindCategory(t *testing.T) {
 
 	scraper := NewScraper(s.URL)
 
-	got := map[string]string{
-		"Concert Tickets":  path.Join(s.URL, "/sg/Concert-Tickets"),
-		"Sports Tickets":   path.Join(s.URL, "/sg/Sports-Tickets"),
-		"Theatre Tickets":  path.Join(s.URL, "/sg/Theatre-Tickets"),
-		"Festival Tickets": path.Join(s.URL, "/sg/Festival-Tickets"),
+	want := map[string]string{
+		"Concert Tickets":  "/sg/Concert-Tickets",
+		"Sports Tickets":   "/sg/Sports-Tickets",
+		"Theatre Tickets":  "/sg/Theatre-Tickets",
+		"Festival Tickets": "/sg/Festival-Tickets",
 	}
-	want, err := scraper.FindCategory()
+	got, err := scraper.FindCategory()
+	assert.NoError(t, err)
+	assert.Equal(t, want, got)
+}
+
+func TestScraper_FindEventType(t *testing.T) {
+	s := setUp()
+	defer s.Close()
+
+	scraper := NewScraper(s.URL + "/sg/Concert-Tickets")
+
+	want := map[string]string{
+		"Club and dance": "/sg/Concert-Tickets/Clubs-and-Dance",
+		"Flamenco":       "/sg/Theater-Tickets/Flamenco",
+	}
+	got, err := scraper.FindEventType()
 	assert.NoError(t, err)
 	assert.Equal(t, want, got)
 }
