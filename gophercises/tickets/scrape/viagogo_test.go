@@ -9,8 +9,7 @@ import (
 	"testing"
 )
 
-// TODO refactor the test
-func TestScraper_FindCategory(t *testing.T) {
+func setUp() *httptest.Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data := `
@@ -35,7 +34,11 @@ func TestScraper_FindCategory(t *testing.T) {
 		_, _ = fmt.Fprint(w, data)
 	})
 
-	s := httptest.NewServer(mux)
+	return httptest.NewServer(mux)
+}
+
+func TestScraper_FindCategory(t *testing.T) {
+	s := setUp()
 	defer s.Close()
 
 	scraper := NewScraper(s.URL)

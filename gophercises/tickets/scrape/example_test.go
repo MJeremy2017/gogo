@@ -8,7 +8,6 @@ import (
 
 // TODO start from concert tickets and see how to find categories
 func TestA(t *testing.T) {
-	fmt.Println("h")
 	depthFunc := colly.MaxDepth(2)
 	c := colly.NewCollector(depthFunc)
 
