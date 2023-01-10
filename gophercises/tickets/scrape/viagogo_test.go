@@ -50,10 +50,37 @@ func setUp() *httptest.Server {
 		_, _ = fmt.Fprint(w, data)
 	})
 
+	mux.HandleFunc("/sg/Concert-Tickets/Clubs-and-Dance", func(w http.ResponseWriter, r *http.Request) {
+		data := `
+<html>
+    <div class="uuxxl pgw">
+		<a href="something">abc</a>
+        <h2 class="txtc t xxl pbl">All Events</h2>
+            <h3 class="t xxl"></h3>
+            <ul class="cloud mbxl">
+                    <li>
+                        <a class="t" href="/sg/Concert-Tickets/Rock-and-Pop/5-Seconds-of-Summer-Tickets">5 Seconds of Summer</a>
+                    </li>
+            </ul>
+            <h3 class="t xxl">B</h3>
+            <ul class="cloud mbxl">
+                    <li>
+                        <a class="t" href="/sg/Concert-Tickets/Rock-and-Pop/Bastille-Tickets">Bastille</a>
+                    </li>
+                    <li>
+                        <a class="t" href="/sg/Concert-Tickets/Rock-and-Pop/Brigitte-Tickets">Brigitte</a>
+                    </li>
+            </ul>
+    </div>
+</html>
+`
+		_, _ = fmt.Fprint(w, data)
+	})
+
 	return httptest.NewServer(mux)
 }
 
-func TestScraper_FindCategory(t *testing.T) {
+func TestScraper_FindLinks(t *testing.T) {
 	s := setUp()
 	defer s.Close()
 	scraper := NewScraper(s.URL)
@@ -65,19 +92,29 @@ func TestScraper_FindCategory(t *testing.T) {
 			"Theatre Tickets":  "/sg/Theatre-Tickets",
 			"Festival Tickets": "/sg/Festival-Tickets",
 		}
-		got, err := scraper.FindLinks("", categoryQuery)
+		got, err := scraper.FindLinks("", CategoryQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
 
-	t.Run("Can find Event Type links", func(t *testing.T) {
+	t.Run("Can find event type links", func(t *testing.T) {
 		want := map[string]string{
 			"Club and dance": "/sg/Concert-Tickets/Clubs-and-Dance",
 			"Flamenco":       "/sg/Theater-Tickets/Flamenco",
 		}
-		got, err := scraper.FindLinks("/sg/Concert-Tickets", eventTypeQuery)
+		got, err := scraper.FindLinks("/sg/Concert-Tickets", EventTypeQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
 
+	t.Run("Can find events links", func(t *testing.T) {
+		want := map[string]string{
+			"5 Seconds of Summer": "/sg/Concert-Tickets/Rock-and-Pop/5-Seconds-of-Summer-Tickets",
+			"Bastille":            "/sg/Concert-Tickets/Rock-and-Pop/Bastille-Tickets",
+			"Brigitte":            "/sg/Concert-Tickets/Rock-and-Pop/Brigitte-Tickets",
+		}
+		got, err := scraper.FindLinks("/sg/Concert-Tickets/Clubs-and-Dance", EventQuery)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 }
