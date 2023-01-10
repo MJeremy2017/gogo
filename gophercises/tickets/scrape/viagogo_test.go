@@ -56,31 +56,28 @@ func setUp() *httptest.Server {
 func TestScraper_FindCategory(t *testing.T) {
 	s := setUp()
 	defer s.Close()
-
 	scraper := NewScraper(s.URL)
 
-	want := map[string]string{
-		"Concert Tickets":  "/sg/Concert-Tickets",
-		"Sports Tickets":   "/sg/Sports-Tickets",
-		"Theatre Tickets":  "/sg/Theatre-Tickets",
-		"Festival Tickets": "/sg/Festival-Tickets",
-	}
-	got, err := scraper.FindCategory()
-	assert.NoError(t, err)
-	assert.Equal(t, want, got)
-}
+	t.Run("Can find category links", func(t *testing.T) {
+		want := map[string]string{
+			"Concert Tickets":  "/sg/Concert-Tickets",
+			"Sports Tickets":   "/sg/Sports-Tickets",
+			"Theatre Tickets":  "/sg/Theatre-Tickets",
+			"Festival Tickets": "/sg/Festival-Tickets",
+		}
+		got, err := scraper.FindLinks("", categoryQuery)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 
-func TestScraper_FindEventType(t *testing.T) {
-	s := setUp()
-	defer s.Close()
+	t.Run("Can find Event Type links", func(t *testing.T) {
+		want := map[string]string{
+			"Club and dance": "/sg/Concert-Tickets/Clubs-and-Dance",
+			"Flamenco":       "/sg/Theater-Tickets/Flamenco",
+		}
+		got, err := scraper.FindLinks("/sg/Concert-Tickets", eventTypeQuery)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 
-	scraper := NewScraper(s.URL + "/sg/Concert-Tickets")
-
-	want := map[string]string{
-		"Club and dance": "/sg/Concert-Tickets/Clubs-and-Dance",
-		"Flamenco":       "/sg/Theater-Tickets/Flamenco",
-	}
-	got, err := scraper.FindEventType()
-	assert.NoError(t, err)
-	assert.Equal(t, want, got)
 }

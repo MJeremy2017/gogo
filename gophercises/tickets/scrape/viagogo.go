@@ -16,37 +16,26 @@ func NewScraper(baseUrl string) *Scraper {
 	return &Scraper{baseUrl: baseUrl}
 }
 
-// FindCategory returns a map with key `category name` and value `relative path after host:port`
-func (s *Scraper) FindCategory() (map[string]string, error) {
+// FindLinks returns a map with key `category name` and value `relative path after host:port`
+func (s *Scraper) FindLinks(path, query string) (map[string]string, error) {
 	res := make(map[string]string)
 
 	c := colly.NewCollector()
-	c.OnHTML(categoryQuery, func(e *colly.HTMLElement) {
+	c.OnHTML(query, func(e *colly.HTMLElement) {
 		relativePath := e.Attr("href")
 		text := strings.TrimSpace(e.Text)
 		res[text] = relativePath
 	})
 
-	err := c.Visit(s.baseUrl)
+	url := s.joinPath(s.baseUrl, path)
+	err := c.Visit(url)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (s *Scraper) FindEventType() (map[string]string, error) {
-	res := make(map[string]string)
-
-	c := colly.NewCollector()
-	c.OnHTML(eventTypeQuery, func(e *colly.HTMLElement) {
-		relativePath := e.Attr("href")
-		text := strings.TrimSpace(e.Text)
-		res[text] = relativePath
-	})
-
-	err := c.Visit(s.baseUrl)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+func (s *Scraper) joinPath(baseUrl, path string) string {
+	p := strings.TrimLeft(path, "/")
+	return baseUrl + "/" + p
 }
