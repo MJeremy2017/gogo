@@ -117,4 +117,13 @@ func TestScraper_FindLinks(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
+
+	t.Run("return empty when no events", func(t *testing.T) {
+		want := make(map[string]string)
+		got, err := scraper.FindLinks("/", EventQuery)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
+
+	// TODO: got ticket of next layer
 }
