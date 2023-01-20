@@ -126,4 +126,15 @@ func TestScraper_FindLinks(t *testing.T) {
 	})
 
 	// TODO: got ticket of next layer
+	t.Run("return all events ticket info", func(t *testing.T) {
+		eventLink := "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets"
+		want := []Event{
+			{
+				EventName: "Super Junior Tickets",
+			},
+		}
+		got, err := scraper.GetEvents(eventLink)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 }

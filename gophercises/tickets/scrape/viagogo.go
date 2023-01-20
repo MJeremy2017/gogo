@@ -9,6 +9,13 @@ const CategoryQuery = ".prinav a[href]"
 const EventTypeQuery = ".cloud a[href]"
 const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
 
+type Event struct {
+	EventName  string
+	Time       int64
+	Venue      string
+	TicketLink string
+}
+
 type Scraper struct {
 	baseUrl string
 }
@@ -39,4 +46,8 @@ func (s *Scraper) FindLinks(path, query string) (map[string]string, error) {
 func (s *Scraper) joinPath(baseUrl, path string) string {
 	p := strings.TrimLeft(path, "/")
 	return strings.TrimRight(baseUrl, "/") + "/" + p
+}
+
+func (s *Scraper) GetEvents(eventLink string) ([]Event, error) {
+	return nil, nil
 }
