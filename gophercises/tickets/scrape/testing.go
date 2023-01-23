@@ -78,39 +78,14 @@ func setUp() *httptest.Server {
 	mux.HandleFunc("/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets", func(w http.ResponseWriter, r *http.Request) {
 		data := `
 <html>
-        <div class="gRow ie8Row">
-                <div class="gCol12 ">
-
-
-<div class="mbl">
-        <div class="gRow rel cb">
-                <div class="el-top-image radius el-rounded-category-image  imageHeight oflowhide rel ">
-<img src="https://img.vggcdn.net/img/cat/25036/0/37.jpg" alt="" class="imgFull" width="1440" height="960" />
-                </div>
-
-
-
-<div class="on-sale-badge-absl " 
-     >
-    <div class="circle-text radius-circle ibk txtc caps cWht t-b lh rel bGry1">
-        <div class="uuxs absl">
-            <span class="bk">tickets</span>
-            <span>On Sale Today</span>
-        </div>
-    </div>
-</div>                    <div class="el-rounded-category-header gCol12 absl btm0">
-                                <h1 class="h xl cWht fltl w100 o10 ins-m pm el-event-title-text">
+                <div class="tablet-header-category-title h l prxxs">
+                            <span>
+                                <a href="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets" id="catNameInHeader" class="h xxl rel cWht">
                                     Super Junior Tickets
-                                </h1>
-                    </div>
-        </div>
-
-</div>
-
+                                </a>
+                            </span>
 
                 </div>
-
-        </div>
 </html>
 `
 		_, _ = fmt.Fprint(w, data)
