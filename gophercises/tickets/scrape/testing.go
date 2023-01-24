@@ -86,6 +86,40 @@ func setUp() *httptest.Server {
                             </span>
 
                 </div>
+<a href="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327" target="_blank" class="js-event-row-container el-row-anchor cGry1">
+    <div data-new-tab-nav="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327" data-id="151336327" class="el-row-div js-event-item bdrt">
+        <div class="t s ins bdrr date-div pt0 pbm">
+            <div>
+                <div class="count-down-sash uuxxs">In <span class="fs14">17</span> Days</div>
+                <time datetime="2023-02-09T20:00:00">
+                    <div class="mbxxs-m">
+                        <span class="h m s-l">Thursday, February 09</span>
+                    </div>
+                    <div class="cGry2 fs14">
+                        <i class="i-time vmid"></i>
+                        <span class="vmid">20:00</span>
+                    </div>
+                </time>
+            </div>
+        </div>
+
+        <div class="el-column-info uum ins">
+            <div>
+                <div class="t s">
+                    <i class="i-location vmid fs14"></i>
+                    Espaço Unimed (formerly Espaco das Americas), <span class="t-b">Sao Paulo, Brazil</span>
+                </div>
+                <span class="t s">
+                    <span class="camo bk" href="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327" title="Super Junior at Espa&#231;o Unimed (formerly Espaco das Americas) Sao Paulo on Thu 09 Feb 2023 20:00">
+                        <strong class="cGry3">Super Junior</strong>
+                        <span class="label-vg-deal bBlu1 ins fs12 txtc cWht"> <span class="i-eye rel dealbadge-star mrxxs"></span>Recently Viewed </span>
+                    </span>
+                </span>
+            </div>
+        </div>
+
+    </div>
+</a>
 </html>
 `
 		_, _ = fmt.Fprint(w, data)

@@ -51,11 +51,17 @@ func (s *Scraper) joinPath(baseUrl, path string) string {
 
 func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	res := make([]Event, 0)
+	var links []string
 	var eventName string
 	c := colly.NewCollector()
 	c.OnHTML("#catNameInHeader", func(e *colly.HTMLElement) {
 		eventName = strings.TrimSpace(e.Text)
 		fmt.Println("got", eventName)
+	})
+
+	c.OnHTML(".js-event-row-container.el-row-anchor", func(e *colly.HTMLElement) {
+		p := e.Attr("href")
+		links = append(links, p)
 	})
 
 	url := s.joinPath(s.baseUrl, path)
@@ -64,6 +70,11 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 		return nil, err
 	}
 
-	res = append(res, Event{EventName: eventName})
+	for _, lk := range links {
+		res = append(res, Event{
+			EventName:  eventName,
+			TicketLink: lk,
+		})
+	}
 	return res, nil
 }
