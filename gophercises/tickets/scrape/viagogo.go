@@ -1,7 +1,6 @@
 package scrape
 
 import (
-	"fmt"
 	"github.com/gocolly/colly"
 	"strings"
 )
@@ -55,8 +54,9 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	var eventName string
 	c := colly.NewCollector()
 	c.OnHTML("#catNameInHeader", func(e *colly.HTMLElement) {
-		eventName = strings.TrimSpace(e.Text)
-		fmt.Println("got", eventName)
+		if eventName == "" {
+			eventName = strings.TrimSpace(e.Text)
+		}
 	})
 
 	c.OnHTML(".js-event-row-container.el-row-anchor", func(e *colly.HTMLElement) {

@@ -120,6 +120,43 @@ func setUp() *httptest.Server {
 
     </div>
 </a>
+<a href="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151396140" target="_blank" class="js-event-row-container el-row-anchor cGry1">
+    <div data-new-tab-nav="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151396140" data-id="151396140" class="el-row-div js-event-item">
+        <div class="t s ins bdrr date-div pt0 pbm">
+            <div>
+                <div class="count-down-sash uuxxs">In <span class="fs14">25</span> Days</div>
+                <time datetime="2023-02-18T19:30:00">
+                    <div class="mbxxs-m">
+                        <span class="h m s-l">Saturday, February 18</span>
+                    </div>
+                    <div class="cGry2 fs14">
+                        <i class="i-time vmid"></i>
+                        <span class="vmid">19:30</span>
+                    </div>
+                </time>
+            </div>
+        </div>
+
+        <div class="el-column-info uum ins">
+            <div>
+                <div class="t s">
+                    <i class="i-location vmid fs14"></i>
+                    Sunway Lagoon, <span class="t-b">Selangor, Malaysia</span>
+                </div>
+                <span class="t s">
+                    <span class="camo bk" href="/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151396140" title="Kpop Mega Concert at Sunway Lagoon Selangor on Sat 18 Feb 2023 19:30">
+                        <strong class="cGry3">Kpop Mega Concert</strong>
+                    </span>
+                </span>
+
+                <div class="h txtl flex mtxxs flex-middle">
+                    <i class="i-stadium vmid mrxxs fs16 nudge-t-1"></i>
+                    <span class="vmid">Venue capacity: 2000</span>
+                </div>
+            </div>
+        </div>
+	</div>
+</a>
 </html>
 `
 		_, _ = fmt.Fprint(w, data)
