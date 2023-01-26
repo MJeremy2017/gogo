@@ -11,7 +11,7 @@ const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
 
 type Event struct {
 	EventName  string
-	Time       int64
+	Time       string
 	Venue      string
 	TicketLink string
 }
@@ -49,8 +49,7 @@ func (s *Scraper) joinPath(baseUrl, path string) string {
 }
 
 func (s *Scraper) GetEvents(path string) ([]Event, error) {
-	res := make([]Event, 0)
-	var links []string
+	ms := make([]*Event, 0)
 	var eventName string
 	c := colly.NewCollector()
 	c.OnHTML("#catNameInHeader", func(e *colly.HTMLElement) {
@@ -61,7 +60,12 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 
 	c.OnHTML(".js-event-row-container.el-row-anchor", func(e *colly.HTMLElement) {
 		p := e.Attr("href")
-		links = append(links, p)
+		t := e.ChildAttr("time", "datetime")
+		event := Event{
+			Time:       t,
+			TicketLink: p,
+		}
+		ms = append(ms, &event)
 	})
 
 	url := s.joinPath(s.baseUrl, path)
@@ -70,11 +74,11 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 		return nil, err
 	}
 
-	for _, lk := range links {
-		res = append(res, Event{
-			EventName:  eventName,
-			TicketLink: lk,
-		})
+	var events []Event
+	for _, e := range ms {
+		e.EventName = eventName
+		events = append(events, *e)
 	}
-	return res, nil
+
+	return events, nil
 }

@@ -134,6 +134,7 @@ func setUp() *httptest.Server {
                         <span class="vmid">19:30</span>
                     </div>
                 </time>
+				<time class="hide" datetime="2023-02-20T23:59:00"></time>
             </div>
         </div>
 

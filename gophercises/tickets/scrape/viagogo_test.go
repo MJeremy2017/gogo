@@ -50,16 +50,18 @@ func TestScraper_FindLinks(t *testing.T) {
 		assert.Equal(t, want, got)
 	})
 
-	// TODO: add multiple links cases to testing
+	// TODO: add time
 	t.Run("return all events ticket info", func(t *testing.T) {
 		eventLink := "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets"
 		want := []Event{
 			{
 				EventName:  "Super Junior Tickets",
+				Time:       "2023-02-09T20:00:00",
 				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327",
 			},
 			{
 				EventName:  "Super Junior Tickets",
+				Time:       "2023-02-18T19:30:00",
 				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151396140",
 			},
 		}
