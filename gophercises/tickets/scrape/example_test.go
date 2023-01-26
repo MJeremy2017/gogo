@@ -16,5 +16,13 @@ func TestA(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Printf("\n got: %v", ms)
+	fmt.Printf("\ngot: %v\n", ms)
+
+	events, err := s.GetEvents("/sg/Concert-Tickets/Rock-and-Pop/Grace-Jones-Tickets")
+	if err != nil {
+		log.Println(err)
+	}
+	for i, e := range events {
+		fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s \n", i+1, e.EventName, e.Time, e.Venue, e.TicketLink)
+	}
 }
