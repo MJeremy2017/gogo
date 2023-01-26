@@ -61,9 +61,11 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	c.OnHTML(".js-event-row-container.el-row-anchor", func(e *colly.HTMLElement) {
 		p := e.Attr("href")
 		t := e.ChildAttr("time", "datetime")
+		v := e.ChildText("span[class=t-b]")
 		event := Event{
 			Time:       t,
 			TicketLink: p,
+			Venue:      v,
 		}
 		ms = append(ms, &event)
 	})
