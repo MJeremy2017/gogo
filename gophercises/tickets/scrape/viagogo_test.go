@@ -50,7 +50,7 @@ func TestScraper_FindLinks(t *testing.T) {
 		assert.Equal(t, want, got)
 	})
 
-	// TODO: add venue
+	// TODO: get ticket price for different quantities https://www.viagogo.com/sg/Concert-Tickets/Rock-and-Pop/Mayday-Tickets/E-151357967?qty=1,2...
 	t.Run("return all events ticket info", func(t *testing.T) {
 		eventLink := "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets"
 		want := []Event{
@@ -69,6 +69,35 @@ func TestScraper_FindLinks(t *testing.T) {
 		}
 		got, err := scraper.GetEvents(eventLink)
 		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("return all tickets with prices", func(t *testing.T) {
+		events := []Event{
+			{
+				EventName:  "Super Junior Tickets",
+				Time:       "2023-02-09T20:00:00",
+				Venue:      "Sao Paulo, Brazil",
+				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327",
+			},
+		}
+
+		err := scraper.GetTickets(events)
+		assert.NoError(t, err)
+
+		var got [][]Ticket
+		for _, e := range events {
+			got = append(got, e.Tickets)
+		}
+
+		want := [][]Ticket{
+			{
+				Ticket{
+					Quantity: 1,
+					Price:    110,
+				},
+			},
+		}
 		assert.Equal(t, want, got)
 	})
 }

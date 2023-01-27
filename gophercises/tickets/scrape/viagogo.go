@@ -9,11 +9,17 @@ const CategoryQuery = ".prinav a[href]"
 const EventTypeQuery = ".cloud a[href]"
 const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
 
+type Ticket struct {
+	Quantity int32
+	Price    float64
+}
+
 type Event struct {
 	EventName  string
 	Time       string
 	Venue      string
 	TicketLink string
+	Tickets    []Ticket
 }
 
 type Scraper struct {
@@ -83,4 +89,8 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	}
 
 	return events, nil
+}
+
+func (s *Scraper) GetTickets(events []Event) error {
+	return nil
 }
