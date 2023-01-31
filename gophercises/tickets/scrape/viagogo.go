@@ -91,6 +91,8 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	return events, nil
 }
 
+// TODO use post request to get the tickets info
+// TODO in the response when the TicketsLeftInListingMessage is null, means the ticket is sold
 func (s *Scraper) GetTickets(events []Event) error {
 	return nil
 }
