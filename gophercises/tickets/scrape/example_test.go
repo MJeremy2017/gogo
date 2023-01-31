@@ -26,7 +26,7 @@ func TestA(t *testing.T) {
 		fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s \n", i+1, e.EventName, e.Time, e.Venue, e.TicketLink)
 	}
 
-	ticketUrl := "https://www.viagogo.com/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327?qty=1"
+	ticketUrl := "https://www.viagogo.com/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327?wku=0"
 	getAndSaveResponse(ticketUrl)
 }
 
