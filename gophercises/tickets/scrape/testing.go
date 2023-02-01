@@ -163,5 +163,39 @@ func setUp() *httptest.Server {
 		_, _ = fmt.Fprint(w, data)
 	})
 
+	mux.HandleFunc("/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			_, _ = fmt.Fprint(w, "")
+		}
+
+		data := `
+{
+	"Items": [
+		{
+			"Id": 5843255783,
+      		"EventId": 151336327,
+			"RawPrice": 108.82,
+ 			"TicketsLeftInListingMessage": {
+				"Message": "4 tickets remaining",
+				"Qualifier": "in this listing on our site",
+				"Disclaimer": null,
+				"HasValue": true,
+				"FeatureTrackingKey": "2fbb0992-0355-42c8-98d2-4f0616842abb"
+		  	},
+			"QuantityRange": "1 - 4"
+		},
+		{
+			"Id": 5891820447,
+      		"EventId": 151336327,
+			"RawPrice": 206.64,
+			"TicketsLeftInListingMessage": null,
+			"QuantityRange": "1"
+		},
+	]
+}
+`
+		_, _ = fmt.Fprint(w, data)
+	})
+
 	return httptest.NewServer(mux)
 }

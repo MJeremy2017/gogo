@@ -93,8 +93,8 @@ func TestScraper_FindLinks(t *testing.T) {
 		want := [][]Ticket{
 			{
 				Ticket{
-					Quantity: 1,
-					Price:    110,
+					QuantityRange: "1 - 4",
+					Price:         109,
 				},
 			},
 		}

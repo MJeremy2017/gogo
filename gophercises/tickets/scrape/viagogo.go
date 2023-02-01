@@ -10,8 +10,8 @@ const EventTypeQuery = ".cloud a[href]"
 const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
 
 type Ticket struct {
-	Quantity int32
-	Price    float64
+	QuantityRange string
+	Price         float64
 }
 
 type Event struct {
