@@ -190,7 +190,7 @@ func setUp() *httptest.Server {
 			"RawPrice": 206.64,
 			"TicketsLeftInListingMessage": null,
 			"QuantityRange": "1"
-		},
+		}
 	]
 }
 `

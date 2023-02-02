@@ -73,29 +73,25 @@ func TestScraper_FindLinks(t *testing.T) {
 	})
 
 	t.Run("return all tickets with prices", func(t *testing.T) {
-		events := []Event{
-			{
-				EventName:  "Super Junior Tickets",
-				Time:       "2023-02-09T20:00:00",
-				Venue:      "Sao Paulo, Brazil",
-				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327",
-			},
+		event := Event{
+			EventName:  "Super Junior Tickets",
+			Time:       "2023-02-09T20:00:00",
+			Venue:      "Sao Paulo, Brazil",
+			TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327",
 		}
 
-		err := scraper.GetTickets(events)
+		err := scraper.GetTickets(&event)
 		assert.NoError(t, err)
 
-		var got [][]Ticket
-		for _, e := range events {
-			got = append(got, e.Tickets)
+		var got []Ticket
+		for _, ticket := range event.Tickets {
+			got = append(got, ticket)
 		}
 
-		want := [][]Ticket{
+		want := []Ticket{
 			{
-				Ticket{
-					QuantityRange: "1 - 4",
-					Price:         109,
-				},
+				QuantityRange: "1 - 4",
+				Price:         109,
 			},
 		}
 		assert.Equal(t, want, got)

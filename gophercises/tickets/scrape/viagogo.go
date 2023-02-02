@@ -2,12 +2,17 @@ package scrape
 
 import (
 	"github.com/gocolly/colly"
+	"log"
 	"strings"
 )
 
 const CategoryQuery = ".prinav a[href]"
 const EventTypeQuery = ".cloud a[href]"
 const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
+
+type ticketItems struct {
+	Items []map[string]interface{} `json:"Items"`
+}
 
 type Ticket struct {
 	QuantityRange string
@@ -91,8 +96,33 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	return events, nil
 }
 
-// TODO use post request to get the tickets info
-// TODO in the response when the TicketsLeftInListingMessage is null, means the ticket is sold
-func (s *Scraper) GetTickets(events []Event) error {
+// TODO in the response when the TicketsLeftInListingMessage is nil, means the ticket is sold
+// TODO round floats
+// Get all available tickets for an event
+func (s *Scraper) GetTickets(event *Event) error {
+	var tickets []Ticket
+	lk := event.TicketLink
+	url := s.joinPath(s.baseUrl, lk)
+	items, err := postAndGetJsonResponse(url)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	for _, item := range items.Items {
+		q, ok := item["QuantityRange"].(string)
+		if !ok {
+			q = ""
+		}
+		p, ok := item["RawPrice"].(float64)
+		if !ok {
+			log.Printf("failed to convert raw price to %v float64\n", item["RawPrice"])
+			p = 0.0
+		}
+		tickets = append(tickets, Ticket{
+			QuantityRange: q,
+			Price:         p,
+		})
+	}
+	event.Tickets = tickets
 	return nil
 }
