@@ -96,9 +96,7 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	return events, nil
 }
 
-// TODO in the response when the TicketsLeftInListingMessage is nil, means the ticket is sold
-// TODO round floats
-// Get all available tickets for an event
+// GetTickets returns all available tickets for an event
 func (s *Scraper) GetTickets(event *Event) error {
 	var tickets []Ticket
 	lk := event.TicketLink
@@ -112,15 +110,8 @@ func (s *Scraper) GetTickets(event *Event) error {
 		if item["TicketsLeftInListingMessage"] == nil {
 			continue
 		}
-		q, ok := item["QuantityRange"].(string)
-		if !ok {
-			q = ""
-		}
-		p, ok := item["RawPrice"].(float64)
-		if !ok {
-			log.Printf("failed to convert raw price to %v float64\n", item["RawPrice"])
-			p = 0.0
-		}
+		q := getQuantityRangeFromItem(item)
+		p := getRawPriceFromItem(item)
 		tickets = append(tickets, Ticket{
 			QuantityRange: q,
 			Price:         RoundRawPrice(p),

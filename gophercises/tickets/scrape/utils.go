@@ -3,6 +3,7 @@ package scrape
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -29,4 +30,22 @@ func postAndGetJsonResponse(url string) (ticketItems, error) {
 		return res, err
 	}
 	return res, nil
+}
+
+func getQuantityRangeFromItem(item map[string]interface{}) string {
+	q, ok := item["QuantityRange"].(string)
+	if !ok {
+		log.Println("failed to convert QuantityRange from item", item["QuantityRange"])
+		q = ""
+	}
+	return q
+}
+
+func getRawPriceFromItem(item map[string]interface{}) float64 {
+	p, ok := item["RawPrice"].(float64)
+	if !ok {
+		log.Printf("failed to convert raw price to %v float64\n", item["RawPrice"])
+		p = 0.0
+	}
+	return p
 }
