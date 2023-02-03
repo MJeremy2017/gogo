@@ -3,17 +3,10 @@ package scrape
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"strconv"
 )
 
-func RoundRawPrice(rawPrice string) float64 {
-	rp, err := strconv.ParseFloat(rawPrice, 64)
-	if err != nil {
-		log.Println("failed to round raw price", rawPrice)
-		return 0
-	}
+func RoundRawPrice(rp float64) float64 {
 	i := float64(int64(rp))
 	left := rp - i
 	if left >= 0.5 {

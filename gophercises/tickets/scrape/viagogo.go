@@ -109,6 +109,9 @@ func (s *Scraper) GetTickets(event *Event) error {
 		return err
 	}
 	for _, item := range items.Items {
+		if item["TicketsLeftInListingMessage"] == nil {
+			continue
+		}
 		q, ok := item["QuantityRange"].(string)
 		if !ok {
 			q = ""
@@ -120,7 +123,7 @@ func (s *Scraper) GetTickets(event *Event) error {
 		}
 		tickets = append(tickets, Ticket{
 			QuantityRange: q,
-			Price:         p,
+			Price:         RoundRawPrice(p),
 		})
 	}
 	event.Tickets = tickets
