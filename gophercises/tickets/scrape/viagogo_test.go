@@ -50,7 +50,6 @@ func TestScraper_FindLinks(t *testing.T) {
 		assert.Equal(t, want, got)
 	})
 
-	// TODO: get ticket price for different quantities https://www.viagogo.com/sg/Concert-Tickets/Rock-and-Pop/Mayday-Tickets/E-151357967?qty=1,2...
 	t.Run("return all events ticket info", func(t *testing.T) {
 		eventLink := "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets"
 		want := []Event{

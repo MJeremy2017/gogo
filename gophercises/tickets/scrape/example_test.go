@@ -23,11 +23,15 @@ func TestA(t *testing.T) {
 		log.Println(err)
 	}
 	for i, e := range events {
-		fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s \n", i+1, e.EventName, e.Time, e.Venue, e.TicketLink)
+		err := s.GetTickets(&e)
+		if err != nil {
+			log.Println("Failed to get tickets info -------")
+			continue
+		}
+		fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
+			i+1, e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
 	}
 
-	ticketUrl := "https://www.viagogo.com/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327"
-	postAndSaveResponse(ticketUrl)
 }
 
 func getAndSaveResponse(url string) {
