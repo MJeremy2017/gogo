@@ -10,7 +10,6 @@ const CategoryQuery = ".prinav a[href]"
 const EventTypeQuery = ".cloud a[href]"
 const EventQuery = "div.uuxxl.pgw ul.cloud.mbxl a[href]"
 
-// TODO: add html web page with scraped infos
 type ticketItems struct {
 	Items []map[string]interface{} `json:"Items"`
 }
