@@ -22,12 +22,14 @@
             <th>Cheapest Price</th>
             <th>Platform</th>
         </tr>
-        {{range $event := .}}
+        {{range .}}
         <tr>
-            <td>$event.EventName</td>
-            <td>$event.Time</td>
-            <td>$event.Venue</td>
-            <td>12</td>
+            <td>{{.EventName}}</td>
+            <td>{{.Time}}</td>
+            <td>{{.Venue}}</td>
+            {{with index .Tickets 0}}
+                <td>{{.Price}}</td>
+            {{end}}
             <td>Viagogo</td>
         </tr>
         {{end}}

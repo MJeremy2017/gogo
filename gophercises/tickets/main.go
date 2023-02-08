@@ -8,7 +8,6 @@ import (
 	"tickets/scrape"
 )
 
-// event name | time | venue | cheapest ticket (quantity price) | platform
 const Address = ":3000"
 const TemplatePath = "template.html"
 
@@ -19,7 +18,6 @@ type CombinedEvents struct {
 }
 
 func (c CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// TODO parse the events to a table
 	err := tmpl.Execute(w, c.ViagogoEvents)
 	if err != nil {
 		log.Fatal(err)
@@ -31,13 +29,12 @@ func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 }
 
 func main() {
+	// TODO sort to put the cheapest price at the front
+	// TODO get ticket link to it
 	events, err := scrapeViagogoTicket()
 	if err != nil {
 		log.Fatal(err)
 	}
-	//for _, event := range events {
-	//	fmt.Printf("%s %+v \n", event.EventName, event.Tickets)
-	//}
 	combinedEvents := NewCombinedEvents(events)
 
 	mux := http.NewServeMux()
