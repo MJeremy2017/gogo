@@ -2,24 +2,31 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"tickets/scrape"
 )
 
-// TODO add a server
-// TODO html page
 // event name | time | venue | cheapest ticket (quantity price) | platform
+const Address = ":3000"
+const TemplatePath = "template.html"
+
+var tmpl = template.Must(template.ParseFiles(TemplatePath))
 
 type CombinedEvents struct {
-	ViagogoEvents *[]scrape.Event
+	ViagogoEvents []scrape.Event
 }
 
 func (c CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprint(w, "Hello")
+	// TODO parse the events to a table
+	err := tmpl.Execute(w, c.ViagogoEvents)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
-func NewCombinedEvents(viagogoEvents *[]scrape.Event) CombinedEvents {
+func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 	return CombinedEvents{ViagogoEvents: viagogoEvents}
 }
 
@@ -28,15 +35,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//for _, event := range events {
+	//	fmt.Printf("%s %+v \n", event.EventName, event.Tickets)
+	//}
 	combinedEvents := NewCombinedEvents(events)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", combinedEvents)
 
-	log.Fatal(http.ListenAndServe(":3000", mux))
+	log.Println("listening on port", Address)
+	log.Fatal(http.ListenAndServe(Address, mux))
 }
 
-func scrapeViagogoTicket() (*[]scrape.Event, error) {
+func scrapeViagogoTicket() ([]scrape.Event, error) {
 	baseUrl := "https://www.viagogo.com"
 	s := scrape.NewScraper(baseUrl)
 
@@ -45,6 +56,7 @@ func scrapeViagogoTicket() (*[]scrape.Event, error) {
 		log.Println(err)
 		return nil, err
 	}
+	var result []scrape.Event
 	for _, e := range events {
 		err := s.GetTickets(&e)
 		if err != nil {
@@ -52,8 +64,9 @@ func scrapeViagogoTicket() (*[]scrape.Event, error) {
 			continue
 		}
 		display(&e)
+		result = append(result, e)
 	}
-	return &events, nil
+	return result, nil
 }
 
 func display(e *scrape.Event) {
