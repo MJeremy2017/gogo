@@ -17,6 +17,7 @@ type ticketItems struct {
 type Ticket struct {
 	QuantityRange string
 	Price         float64
+	BuyUrl        string
 }
 
 type Event struct {
@@ -112,9 +113,11 @@ func (s *Scraper) GetTickets(event *Event) error {
 		}
 		q := getQuantityRangeFromItem(item)
 		p := getRawPriceFromItem(item)
+		u := getBuyUrlFromItem(item)
 		tickets = append(tickets, Ticket{
 			QuantityRange: q,
 			Price:         RoundRawPrice(p),
+			BuyUrl:        u,
 		})
 	}
 	event.Tickets = tickets

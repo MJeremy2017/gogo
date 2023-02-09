@@ -49,3 +49,11 @@ func getRawPriceFromItem(item map[string]interface{}) float64 {
 	}
 	return p
 }
+
+func getBuyUrlFromItem(item map[string]interface{}) string {
+	u, ok := item["BuyUrl"].(string)
+	if !ok {
+		log.Println("Failed to convert buy Url", item["BuyUrl"])
+	}
+	return u
+}
