@@ -30,7 +30,6 @@ func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 
 func main() {
 	// TODO sort to put the cheapest price at the front
-	// TODO get ticket link to it
 	events, err := scrapeViagogoTicket()
 	if err != nil {
 		log.Fatal(err)
