@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 )
 
 func RoundRawPrice(rp float64) float64 {
@@ -56,4 +57,15 @@ func getBuyUrlFromItem(item map[string]interface{}) string {
 		log.Println("Failed to convert buy Url", item["BuyUrl"])
 	}
 	return u
+}
+
+func SortEventTicketsByPrice(events []Event) []Event {
+	var res []Event
+	for _, e := range events {
+		sort.Slice(e.Tickets, func(i, j int) bool {
+			return e.Tickets[i].Price < e.Tickets[j].Price
+		})
+		res = append(res, e)
+	}
+	return res
 }
