@@ -25,11 +25,11 @@ func (c CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
-	return CombinedEvents{ViagogoEvents: viagogoEvents}
+	res := scrape.SortEventTicketsByPrice(viagogoEvents)
+	return CombinedEvents{ViagogoEvents: res}
 }
 
 func main() {
-	// TODO sort to put the cheapest price at the front
 	events, err := scrapeViagogoTicket()
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +47,7 @@ func scrapeViagogoTicket() ([]scrape.Event, error) {
 	baseUrl := "https://www.viagogo.com"
 	s := scrape.NewScraper(baseUrl)
 
+	// TODO scrape all events
 	events, err := s.GetEvents("/sg/Concert-Tickets/Rock-and-Pop/Grace-Jones-Tickets")
 	if err != nil {
 		log.Println(err)

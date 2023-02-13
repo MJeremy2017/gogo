@@ -24,6 +24,7 @@ func TestA(t *testing.T) {
 		if err != nil {
 			log.Println(err)
 		}
+
 		for _, etLink := range eventTypes {
 			// /sg/Concert-Tickets/Rock-and-Pop/Bastille-Tickets
 			eventLinks, err := s.FindLinks(etLink, scrape.EventQuery)
@@ -48,6 +49,8 @@ func TestA(t *testing.T) {
 					}
 					fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
 						i+1, e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
+
+					os.Exit(0)
 				}
 			}
 		}
