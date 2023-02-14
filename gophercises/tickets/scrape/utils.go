@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 )
 
@@ -68,4 +69,22 @@ func SortEventTicketsByPrice(events []Event) []Event {
 		res = append(res, e)
 	}
 	return res
+}
+
+func SaveEventsToJson(events []Event) {
+	f, err := os.Create("event.json")
+	defer f.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	b, err := json.Marshal(events)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = f.Write(b)
+	if err != nil {
+		panic(err)
+	}
 }
