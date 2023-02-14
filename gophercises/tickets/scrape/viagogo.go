@@ -118,7 +118,7 @@ func (s *Scraper) GetTickets(event *Event) error {
 		tickets = append(tickets, Ticket{
 			QuantityRange: q,
 			Price:         RoundRawPrice(p),
-			BuyUrl:        u,
+			BuyUrl:        s.joinPath(s.baseUrl, u),
 		})
 	}
 	event.Tickets = tickets
@@ -151,7 +151,7 @@ func (s *Scraper) GetAllEvents() []Event {
 				if err != nil {
 					log.Println(err)
 				}
-				for i, e := range events {
+				for _, e := range events {
 					err := s.GetTickets(&e)
 					if err != nil {
 						log.Println("Failed to get tickets info -------")
@@ -160,12 +160,16 @@ func (s *Scraper) GetAllEvents() []Event {
 					if len(e.Tickets) == 0 {
 						continue
 					}
-					fmt.Printf("Event %d name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
-						i+1, e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
+					display(&e)
 					result = append(result, e)
 				}
 			}
 		}
 	}
 	return result
+}
+
+func display(e *Event) {
+	fmt.Printf("event name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
+		e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
 }
