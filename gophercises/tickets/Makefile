@@ -1,5 +1,8 @@
 test:
 	go test -v -race ./...
 
-run:
-	go run -race main.go
+run-local:
+	go run -race main.go -from=local
+
+run-remote:
+	go run -race main.go -from=remote

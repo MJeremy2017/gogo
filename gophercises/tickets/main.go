@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,6 +12,7 @@ const Address = ":3000"
 const TemplatePath = "template.html"
 
 var tmpl = template.Must(template.ParseFiles(TemplatePath))
+var from string
 
 type CombinedEvents struct {
 	ViagogoEvents []scrape.Event
@@ -30,9 +31,23 @@ func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 }
 
 func main() {
-	events, err := scrapeViagogoTicket()
-	if err != nil {
-		log.Fatal(err)
+	flag.StringVar(&from, "from", "local", "download from web or from local")
+	flag.Parse()
+
+	var events []scrape.Event
+	var err error
+	if from == "remote" {
+		log.Println("scraping from viagogo ...")
+		events, err = scrapeViagogoTicket()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Println("loading from local storage ...")
+		events, err = scrape.LoadJsonToEvents("scrape/event.json")
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	combinedEvents := NewCombinedEvents(events)
 
@@ -44,29 +59,8 @@ func main() {
 }
 
 func scrapeViagogoTicket() ([]scrape.Event, error) {
-	baseUrl := "https://www.viagogo.com"
-	s := scrape.NewScraper(baseUrl)
-
-	// TODO scrape all events
-	events, err := s.GetEvents("/sg/Concert-Tickets/Rock-and-Pop/Grace-Jones-Tickets")
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	var result []scrape.Event
-	for _, e := range events {
-		err := s.GetTickets(&e)
-		if err != nil {
-			log.Println("Failed to get tickets info", e.TicketLink)
-			continue
-		}
-		display(&e)
-		result = append(result, e)
-	}
-	return result, nil
-}
-
-func display(e *scrape.Event) {
-	fmt.Printf("event name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
-		e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
+	s := scrape.NewScraper("https://www.viagogo.com")
+	events := s.GetAllEvents()
+	scrape.SaveEventsToJson(events)
+	return events, nil
 }

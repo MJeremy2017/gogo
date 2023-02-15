@@ -10,7 +10,6 @@ import (
 	"tickets/scrape"
 )
 
-// TODO save events to json
 func TestA(t *testing.T) {
 	s := scrape.NewScraper("https://www.viagogo.com")
 	events := s.GetAllEvents()

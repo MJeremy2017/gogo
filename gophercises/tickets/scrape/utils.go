@@ -72,7 +72,7 @@ func SortEventTicketsByPrice(events []Event) []Event {
 }
 
 func SaveEventsToJson(events []Event) {
-	f, err := os.Create("event.json")
+	f, err := os.Create("scrape/event.json")
 	defer f.Close()
 	if err != nil {
 		panic(err)
@@ -87,4 +87,17 @@ func SaveEventsToJson(events []Event) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func LoadJsonToEvents(fp string) ([]Event, error) {
+	var events []Event
+	f, err := os.ReadFile(fp)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(f, &events)
+	if err != nil {
+		return nil, err
+	}
+	return events, nil
 }
