@@ -11,9 +11,11 @@ import (
 )
 
 func TestA(t *testing.T) {
-	s := scrape.NewScraper("https://www.viagogo.com")
-	events := s.GetAllEvents()
-	scrape.SaveEventsToJson(events)
+	events, err := scrape.LoadJsonToEvents("event.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(events[0])
 }
 
 func getAndSaveResponse(url string) {

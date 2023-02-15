@@ -182,14 +182,16 @@ func setUp() *httptest.Server {
 				"HasValue": true,
 				"FeatureTrackingKey": "2fbb0992-0355-42c8-98d2-4f0616842abb"
 		  	},
-			"QuantityRange": "1 - 4"
+			"QuantityRange": "1 - 4",
+			"BuyUrl": "/buy/catId=123"
 		},
 		{
 			"Id": 5891820447,
       		"EventId": 151336327,
 			"RawPrice": 206.64,
 			"TicketsLeftInListingMessage": null,
-			"QuantityRange": "1"
+			"QuantityRange": "1",
+			"BuyUrl": "/buy/catId=124"
 		}
 	]
 }

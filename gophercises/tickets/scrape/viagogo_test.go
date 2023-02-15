@@ -91,6 +91,7 @@ func TestScraper_FindLinks(t *testing.T) {
 			{
 				QuantityRange: "1 - 4",
 				Price:         109,
+				BuyUrl:        scraper.joinPath(scraper.baseUrl, "/buy/catId=123"),
 			},
 		}
 		assert.Equal(t, want, got)
