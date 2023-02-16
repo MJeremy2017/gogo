@@ -56,6 +56,10 @@ func (s *Scraper) FindLinks(path, query string) (map[string]string, error) {
 	return res, nil
 }
 
+func (s *Scraper) FindStarHubEventLinks(path string) (map[string]string, error) {
+	return nil, nil
+}
+
 func (s *Scraper) joinPath(baseUrl, path string) string {
 	p := strings.TrimLeft(path, "/")
 	return strings.TrimRight(baseUrl, "/") + "/" + p

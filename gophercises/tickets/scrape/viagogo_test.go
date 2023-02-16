@@ -96,4 +96,15 @@ func TestScraper_FindLinks(t *testing.T) {
 		}
 		assert.Equal(t, want, got)
 	})
+
+	t.Run("Can find star hub event links", func(t *testing.T) {
+		want := map[string]string{
+			"AA": "/amon-amarth-tickets/performer/367989/",
+			"BB": "/anirudh-tickets/category/135010106/",
+			"CC": "/anvil-tickets/category/710749/",
+		}
+		got, err := scraper.FindStarHubEventLinks("/concert-tickets/category/1/")
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 }

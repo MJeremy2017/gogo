@@ -199,5 +199,23 @@ func setUp() *httptest.Server {
 		_, _ = fmt.Fprint(w, data)
 	})
 
+	mux.HandleFunc("/concert-tickets/category/1/", func(w http.ResponseWriter, r *http.Request) {
+		data := `
+<html>
+<script id="index-data" type="application/json">
+	{
+		"categoryGridLinks": [
+				{ "id": 13961, "text": "AA", "url": "/amon-amarth-tickets/performer/367989/" },
+				{ "id": 77974, "text": "BB", "url": "/anirudh-tickets/category/135010106/" },
+				{ "id": 14924, "text": "CC", "url": "/anvil-tickets/category/710749/" }
+			],
+        "categoryName": "Concert Tickets",
+	}
+</script>
+</html>
+`
+		_, _ = fmt.Fprint(w, data)
+	})
+
 	return httptest.NewServer(mux)
 }
