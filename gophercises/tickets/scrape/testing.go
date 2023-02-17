@@ -209,7 +209,7 @@ func setUp() *httptest.Server {
 				{ "id": 77974, "text": "BB", "url": "/anirudh-tickets/category/135010106/" },
 				{ "id": 14924, "text": "CC", "url": "/anvil-tickets/category/710749/" }
 			],
-        "categoryName": "Concert Tickets",
+        "categoryName": "Concert Tickets"
 	}
 </script>
 </html>

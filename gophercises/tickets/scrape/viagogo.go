@@ -1,6 +1,7 @@
 package scrape
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gocolly/colly"
 	"log"
@@ -57,7 +58,34 @@ func (s *Scraper) FindLinks(path, query string) (map[string]string, error) {
 }
 
 func (s *Scraper) FindStarHubEventLinks(path string) (map[string]string, error) {
-	return nil, nil
+	sc := struct {
+		CategoryGridLinks []struct {
+			ID   int    `json:"id"`
+			Text string `json:"text"`
+			URL  string `json:"url"`
+		} `json:"categoryGridLinks"`
+	}{}
+	res := make(map[string]string)
+
+	q := "script#index-data"
+	c := colly.NewCollector()
+	c.OnHTML(q, func(e *colly.HTMLElement) {
+		err := json.Unmarshal([]byte(e.Text), &sc)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	})
+
+	url := s.joinPath(s.baseUrl, path)
+	err := c.Visit(url)
+	if err != nil {
+		return nil, err
+	}
+	for _, c := range sc.CategoryGridLinks {
+		res[c.Text] = c.URL
+	}
+	return res, nil
 }
 
 func (s *Scraper) joinPath(baseUrl, path string) string {
