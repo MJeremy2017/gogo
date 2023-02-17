@@ -17,7 +17,7 @@ func TestScraper_FindLinks(t *testing.T) {
 			"Theatre Tickets":  "/sg/Theatre-Tickets",
 			"Festival Tickets": "/sg/Festival-Tickets",
 		}
-		got, err := scraper.FindLinks("", CategoryQuery)
+		got, err := scraper.FindViaGogoLinks("", CategoryQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
@@ -27,7 +27,7 @@ func TestScraper_FindLinks(t *testing.T) {
 			"Club and dance": "/sg/Concert-Tickets/Clubs-and-Dance",
 			"Flamenco":       "/sg/Theater-Tickets/Flamenco",
 		}
-		got, err := scraper.FindLinks("/sg/Concert-Tickets", EventTypeQuery)
+		got, err := scraper.FindViaGogoLinks("/sg/Concert-Tickets", EventTypeQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
@@ -38,14 +38,14 @@ func TestScraper_FindLinks(t *testing.T) {
 			"Bastille":            "/sg/Concert-Tickets/Rock-and-Pop/Bastille-Tickets",
 			"Brigitte":            "/sg/Concert-Tickets/Rock-and-Pop/Brigitte-Tickets",
 		}
-		got, err := scraper.FindLinks("/sg/Concert-Tickets/Clubs-and-Dance", EventQuery)
+		got, err := scraper.FindViaGogoLinks("/sg/Concert-Tickets/Clubs-and-Dance", EventQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
 
 	t.Run("return empty when no events", func(t *testing.T) {
 		want := make(map[string]string)
-		got, err := scraper.FindLinks("/", EventQuery)
+		got, err := scraper.FindViaGogoLinks("/", EventQuery)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})

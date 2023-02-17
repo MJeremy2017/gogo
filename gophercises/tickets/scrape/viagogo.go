@@ -38,8 +38,8 @@ func NewScraper(baseUrl string) *Scraper {
 	return &Scraper{baseUrl: baseUrl}
 }
 
-// FindLinks returns a map with key `category name` and value `relative path after host:port`
-func (s *Scraper) FindLinks(path, query string) (map[string]string, error) {
+// FindViaGogoLinks returns a map with key `category name` and value `relative path after host:port`
+func (s *Scraper) FindViaGogoLinks(path, query string) (map[string]string, error) {
 	res := make(map[string]string)
 
 	c := colly.NewCollector()
@@ -165,14 +165,14 @@ func (s *Scraper) GetAllEvents() []Event {
 
 	for _, catLink := range categories {
 		// /sg/Concert-Tickets/Clubs-and-Dance
-		eventTypes, err := s.FindLinks(catLink, EventTypeQuery)
+		eventTypes, err := s.FindViaGogoLinks(catLink, EventTypeQuery)
 		if err != nil {
 			log.Println(err)
 		}
 
 		for _, etLink := range eventTypes {
 			// /sg/Concert-Tickets/Rock-and-Pop/Bastille-Tickets
-			eventLinks, err := s.FindLinks(etLink, EventQuery)
+			eventLinks, err := s.FindViaGogoLinks(etLink, EventQuery)
 			if err != nil {
 				log.Println(err)
 			}
