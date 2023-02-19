@@ -107,4 +107,37 @@ func TestScraper_FindLinks(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
+
+	t.Run("return star hub all events ticket info", func(t *testing.T) {
+		eventLink := "/red-hot-chili-peppers-tickets/performer/7527"
+		want := []Event{
+			{
+				EventName:  "Red Hot Chili Peppers",
+				Time:       "2023-02-19T15:00:00",
+				Venue:      "Tokyo Dome;Tokyo, Japan",
+				TicketLink: "/red-hot-chili-peppers-tokyo-tickets-2-19-2023/event/151207028/",
+				Tickets: []Ticket{
+					{
+						Price: 229,
+						BuyUrl: "/red-hot-chili-peppers-tokyo-tickets-2-19-2023/event/151207028/",
+					},
+				},
+			},
+			{
+				EventName:  "Red Hot Chili Peppers",
+				Time:       "2023-02-21T18:00:00",
+				Venue:      "Osaka Jo Hall;Osaka, Japan",
+				TicketLink: "/red-hot-chili-peppers-osaka-tickets-2-21-2023/event/151207029/",
+				Tickets: []Ticket{
+					{
+						Price: 299,
+						BuyUrl: "/red-hot-chili-peppers-osaka-tickets-2-21-2023/event/151207029/",
+					},
+				},
+			},
+		}
+		got, err := scraper.GetStarHubEvents(eventLink)
+		assert.NoError(t, err)
+		assert.Equal(t, want, got)
+	})
 }

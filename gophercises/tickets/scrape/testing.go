@@ -217,5 +217,57 @@ func setUp() *httptest.Server {
 		_, _ = fmt.Fprint(w, data)
 	})
 
+	mux.HandleFunc("/red-hot-chili-peppers-tickets/performer/7527/", func(w http.ResponseWriter, r *http.Request) {
+		data := `
+<html>
+<script id="index-data" type="application/json">
+	{
+        "categorySummary": {
+            "topLevelCategoryId": 3,
+            "categoryId": 4324,
+            "categoryName": "Red Hot Chili Peppers",
+            "categoryTitle": "Red Hot Chili Peppers Tickets",
+        },
+        "eventGrids": {
+			"2": {
+				"items": [{
+						"eventId": 151207028,
+						"name": "レッド・ホット・チリ・ペッパーズ",
+						"url": "/red-hot-chili-peppers-tokyo-tickets-2-19-2023/event/151207028/",
+						"dayOfWeek": "Sun",
+						"formattedDate": "19 Feb",
+						"formattedTime": "15:00",
+						"formattedDateWithoutYear": "19 Feb",
+						"venueName": "Tokyo Dome",
+						"formattedVenueLocation": "Tokyo, Japan",
+						"countryCode": "JP",
+						"formattedMinPrice": "S$229",
+						"hasActiveListings": true
+					},
+					{
+						"eventId": 151207029,
+						"name": "レッド・ホット・チリ・ペッパーズ",
+						"url": "/red-hot-chili-peppers-osaka-tickets-2-21-2023/event/151207029/",
+						"dayOfWeek": "Tue",
+						"formattedDate": "21 Feb",
+						"formattedTime": "18:00",
+						"formattedDateWithoutYear": "21 Feb",
+						"venueName": "Osaka Jo Hall",
+						"formattedVenueLocation": "Osaka, Japan",
+						"countryCode": "JP",
+						"formattedMinPrice": "S$299",
+						"hasActiveListings": true,
+						"startDateTime": "0001-01-01T00:00:00.0000000Z"
+					}
+				]
+			}
+		}
+	}
+</script>
+</html>
+`
+		_, _ = fmt.Fprint(w, data)
+	})
+
 	return httptest.NewServer(mux)
 }

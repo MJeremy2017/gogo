@@ -130,6 +130,11 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	return events, nil
 }
 
+func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
+	// TODO
+	return nil, nil
+}
+
 // GetTickets returns all available tickets for an event
 func (s *Scraper) GetTickets(event *Event) error {
 	var tickets []Ticket
