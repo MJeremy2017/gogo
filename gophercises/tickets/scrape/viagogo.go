@@ -131,8 +131,52 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 }
 
 func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
-	// TODO
-	return nil, nil
+	sc := struct {
+		CategorySummary map[string]interface{} `json:"categorySummary"`
+		EventGrids      struct {
+			Num2 struct {
+				Items []map[string]interface{} `json:"items"`
+			} `json:"2"`
+		} `json:"eventGrids"`
+	}{}
+	var res []Event
+
+	q := "script#index-data"
+	c := colly.NewCollector()
+	c.OnHTML(q, func(e *colly.HTMLElement) {
+		err := json.Unmarshal([]byte(e.Text), &sc)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	})
+
+	url := s.joinPath(s.baseUrl, path)
+	err := c.Visit(url)
+	if err != nil {
+		return nil, err
+	}
+	eventName := getStringFromMap(sc.CategorySummary, "categoryName")
+	for _, it := range sc.EventGrids.Num2.Items {
+		date := getStringFromMap(it, "formattedDate")
+		hour := getStringFromMap(it, "formattedTime")
+		v1 := getStringFromMap(it, "venueName")
+		v2 := getStringFromMap(it, "formattedVenueLocation")
+		minPrice := getStringFromMap(it, "formattedMinPrice")
+		res = append(res, Event{
+			EventName:  eventName,
+			Time:       formatDateHour(date, hour),
+			Venue:      v1 + ";" + v2,
+			TicketLink: getStringFromMap(it, "url"),
+			Tickets: []Ticket{
+				{
+					Price:  formatDollarSignPrice(minPrice),
+					BuyUrl: getStringFromMap(it, "url"),
+				},
+			},
+		})
+	}
+	return res, nil
 }
 
 // GetTickets returns all available tickets for an event

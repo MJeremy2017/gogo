@@ -226,7 +226,7 @@ func setUp() *httptest.Server {
             "topLevelCategoryId": 3,
             "categoryId": 4324,
             "categoryName": "Red Hot Chili Peppers",
-            "categoryTitle": "Red Hot Chili Peppers Tickets",
+            "categoryTitle": "Red Hot Chili Peppers Tickets"
         },
         "eventGrids": {
 			"2": {

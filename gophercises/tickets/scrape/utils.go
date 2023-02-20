@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func RoundRawPrice(rp float64) float64 {
@@ -38,6 +41,15 @@ func getQuantityRangeFromItem(item map[string]interface{}) string {
 	q, ok := item["QuantityRange"].(string)
 	if !ok {
 		log.Println("failed to convert QuantityRange from item", item["QuantityRange"])
+		q = ""
+	}
+	return q
+}
+
+func getStringFromMap(item map[string]interface{}, key string) string {
+	q, ok := item[key].(string)
+	if !ok {
+		log.Println("failed to convert string from item", item[key])
 		q = ""
 	}
 	return q
@@ -100,4 +112,47 @@ func LoadJsonToEvents(fp string) ([]Event, error) {
 		return nil, err
 	}
 	return events, nil
+}
+
+// returns format in 2023-02-19T15:00:00
+func formatDateHour(dt, hour string) string {
+	ms := map[string]string{
+		"Jan": "01",
+		"Feb": "02",
+		"Mar": "03",
+		"Apr": "04",
+		"May": "05",
+		"Jun": "06",
+		"Jul": "07",
+		"Aug": "08",
+		"Sep": "09",
+		"Oct": "10",
+		"Nov": "11",
+		"Dec": "12",
+	}
+	s := strings.Split(dt, " ")
+	day, mon := s[0], ms[s[1]]
+	year, _, _ := time.Now().Date()
+	return strconv.Itoa(year) + "-" + mon + "-" + day + "T" + hour + ":00"
+}
+
+func formatDollarSignPrice(price string) float64 {
+	price = strings.TrimSpace(price)
+	var pStr string
+	f := false
+	for _, ch := range price {
+		if f {
+			pStr += string(ch)
+		}
+		if string(ch) == "$" {
+			f = true
+		}
+	}
+
+	p, err := strconv.Atoi(pStr)
+	if err != nil {
+		log.Println("failed to convert price", pStr)
+		return 0.0
+	}
+	return float64(p)
 }
