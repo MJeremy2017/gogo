@@ -182,6 +182,31 @@ func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
 	return res, nil
 }
 
+func (s *Scraper) GetStarHubAllEvents() []Event {
+	concertPath := "/concert-tickets/category/1/"
+	links, err := s.FindStarHubEventLinks(concertPath)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	var res []Event
+	for _, lk := range links {
+		es, err := s.GetStarHubEvents(lk)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		for _, e := range es {
+			u := e.Tickets[0].BuyUrl
+			fullUrl := s.joinPath(s.baseUrl, u)
+			e.Tickets[0].BuyUrl = fullUrl
+			display(&e)
+			res = append(res, e)
+		}
+	}
+	return res
+}
+
 // GetTickets returns all available tickets for an event
 func (s *Scraper) GetTickets(event *Event) error {
 	var tickets []Ticket
@@ -209,7 +234,7 @@ func (s *Scraper) GetTickets(event *Event) error {
 	return nil
 }
 
-func (s *Scraper) GetAllEvents() []Event {
+func (s *Scraper) GetViagogoAllEvents() []Event {
 	var result []Event
 	categories := map[string]string{
 		"Concert Tickets": "/sg/Concert-Tickets",

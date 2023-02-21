@@ -66,8 +66,8 @@ func SortEventTicketsByPrice(events []Event) []Event {
 	return res
 }
 
-func SaveEventsToJson(events []Event) {
-	f, err := os.Create("scrape/event.json")
+func SaveEventsToJson(events []Event, path string) {
+	f, err := os.Create(path)
 	defer f.Close()
 	if err != nil {
 		panic(err)

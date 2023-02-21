@@ -18,6 +18,13 @@ func TestA(t *testing.T) {
 	fmt.Println(events[0])
 }
 
+func TestStarHub(t *testing.T) {
+	s := scrape.NewScraper("https://www.stubhub.com/")
+	events := s.GetStarHubAllEvents()
+	p := "starthub_event.json"
+	scrape.SaveEventsToJson(events, p)
+}
+
 func getAndSaveResponse(url string) {
 	response, err := http.Get(url)
 	defer response.Body.Close()
