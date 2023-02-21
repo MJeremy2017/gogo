@@ -58,15 +58,17 @@ func TestScraper_FindLinks(t *testing.T) {
 				Time:       "2023-02-09T20:00:00",
 				Venue:      "Sao Paulo, Brazil",
 				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151336327",
+				Platform:   "Viagogo",
 			},
 			{
 				EventName:  "Super Junior Tickets",
 				Time:       "2023-02-18T19:30:00",
 				Venue:      "Selangor, Malaysia",
 				TicketLink: "/sg/Concert-Tickets/Rock-and-Pop/Super-Junior-Tickets/E-151396140",
+				Platform:   "Viagogo",
 			},
 		}
-		got, err := scraper.GetEvents(eventLink)
+		got, err := scraper.GetViagogoEvents(eventLink)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
@@ -118,10 +120,11 @@ func TestScraper_FindLinks(t *testing.T) {
 				TicketLink: "/red-hot-chili-peppers-tokyo-tickets-2-19-2023/event/151207028/",
 				Tickets: []Ticket{
 					{
-						Price: 229,
+						Price:  229,
 						BuyUrl: "/red-hot-chili-peppers-tokyo-tickets-2-19-2023/event/151207028/",
 					},
 				},
+				Platform: "StarHub",
 			},
 			{
 				EventName:  "Red Hot Chili Peppers",
@@ -130,10 +133,11 @@ func TestScraper_FindLinks(t *testing.T) {
 				TicketLink: "/red-hot-chili-peppers-osaka-tickets-2-21-2023/event/151207029/",
 				Tickets: []Ticket{
 					{
-						Price: 299,
+						Price:  299,
 						BuyUrl: "/red-hot-chili-peppers-osaka-tickets-2-21-2023/event/151207029/",
 					},
 				},
+				Platform: "StarHub",
 			},
 		}
 		got, err := scraper.GetStarHubEvents(eventLink)

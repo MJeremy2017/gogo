@@ -28,6 +28,7 @@ type Event struct {
 	Venue      string
 	TicketLink string
 	Tickets    []Ticket
+	Platform   string
 }
 
 type Scraper struct {
@@ -93,7 +94,7 @@ func (s *Scraper) joinPath(baseUrl, path string) string {
 	return strings.TrimRight(baseUrl, "/") + "/" + p
 }
 
-func (s *Scraper) GetEvents(path string) ([]Event, error) {
+func (s *Scraper) GetViagogoEvents(path string) ([]Event, error) {
 	ms := make([]*Event, 0)
 	var eventName string
 	c := colly.NewCollector()
@@ -124,6 +125,7 @@ func (s *Scraper) GetEvents(path string) ([]Event, error) {
 	var events []Event
 	for _, e := range ms {
 		e.EventName = eventName
+		e.Platform = "Viagogo"
 		events = append(events, *e)
 	}
 
@@ -174,6 +176,7 @@ func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
 					BuyUrl: getStringFromMap(it, "url"),
 				},
 			},
+			Platform: "StarHub",
 		})
 	}
 	return res, nil
@@ -228,7 +231,7 @@ func (s *Scraper) GetAllEvents() []Event {
 
 			for _, eL := range eventLinks {
 				// event object
-				events, err := s.GetEvents(eL)
+				events, err := s.GetViagogoEvents(eL)
 				if err != nil {
 					log.Println(err)
 				}
