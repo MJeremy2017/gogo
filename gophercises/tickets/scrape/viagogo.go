@@ -193,9 +193,9 @@ func (s *Scraper) GetTickets(event *Event) error {
 		if item["TicketsLeftInListingMessage"] == nil {
 			continue
 		}
-		q := getQuantityRangeFromItem(item)
-		p := getRawPriceFromItem(item)
-		u := getBuyUrlFromItem(item)
+		q := getStringFromMap(item, "QuantityRange")
+		p := getFloatFromMap(item)
+		u := getStringFromMap(item, "BuyUrl")
 		tickets = append(tickets, Ticket{
 			QuantityRange: q,
 			Price:         RoundRawPrice(p),
