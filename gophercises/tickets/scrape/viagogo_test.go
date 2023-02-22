@@ -68,7 +68,7 @@ func TestScraper_FindLinks(t *testing.T) {
 				Platform:   "Viagogo",
 			},
 		}
-		got, err := scraper.GetViagogoEvents(eventLink)
+		got, err := scraper.GetViaGogoEvents(eventLink)
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})

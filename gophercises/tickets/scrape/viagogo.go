@@ -94,7 +94,7 @@ func (s *Scraper) joinPath(baseUrl, path string) string {
 	return strings.TrimRight(baseUrl, "/") + "/" + p
 }
 
-func (s *Scraper) GetViagogoEvents(path string) ([]Event, error) {
+func (s *Scraper) GetViaGogoEvents(path string) ([]Event, error) {
 	ms := make([]*Event, 0)
 	var eventName string
 	c := colly.NewCollector()
@@ -112,6 +112,7 @@ func (s *Scraper) GetViagogoEvents(path string) ([]Event, error) {
 			Time:       t,
 			TicketLink: p,
 			Venue:      v,
+			Platform:   "viagogo",
 		}
 		ms = append(ms, &event)
 	})
@@ -240,6 +241,7 @@ func (s *Scraper) GetTickets(event *Event) error {
 
 func (s *Scraper) GetViagogoAllEvents() []Event {
 	var result []Event
+	var cnt int
 	categories := map[string]string{
 		"Concert Tickets": "/sg/Concert-Tickets",
 	}
@@ -260,7 +262,7 @@ func (s *Scraper) GetViagogoAllEvents() []Event {
 
 			for _, eL := range eventLinks {
 				// event object
-				events, err := s.GetViagogoEvents(eL)
+				events, err := s.GetViaGogoEvents(eL)
 				if err != nil {
 					log.Println(err)
 				}
@@ -273,8 +275,12 @@ func (s *Scraper) GetViagogoAllEvents() []Event {
 					if len(e.Tickets) == 0 {
 						continue
 					}
-					display(&e)
 					result = append(result, e)
+					cnt += 1
+					if cnt%10 == 0 {
+						fmt.Println("processed", cnt)
+						display(&e)
+					}
 				}
 			}
 		}

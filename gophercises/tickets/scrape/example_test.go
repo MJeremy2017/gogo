@@ -19,10 +19,11 @@ func TestViaGogo(t *testing.T) {
 }
 
 func TestStarHub(t *testing.T) {
-	s := scrape.NewScraper("https://www.stubhub.com/")
-	events := s.GetStarHubAllEvents()
-	p := "starhub_event.json"
-	scrape.SaveEventsToJson(events, p)
+	events, err := scrape.LoadJsonToEvents("starhub_event.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(events[0])
 }
 
 func getAndSaveResponse(url string) {
