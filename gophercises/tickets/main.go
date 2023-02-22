@@ -59,8 +59,9 @@ func main() {
 }
 
 func scrapeViagogoTicket() ([]scrape.Event, error) {
+	p := "scrape/viagogo_event.json"
 	s := scrape.NewScraper("https://www.viagogo.com")
-	events := s.GetAllEvents()
-	scrape.SaveEventsToJson(events)
+	events := s.GetViagogoAllEvents()
+	scrape.SaveEventsToJson(events, p)
 	return events, nil
 }

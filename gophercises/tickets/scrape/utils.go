@@ -99,6 +99,13 @@ func LoadJsonToEvents(fp string) ([]Event, error) {
 
 // returns format in 2023-02-19T15:00:00
 func formatDateHour(dt, hour string) string {
+	afternoonHour := func(morningHour string) string {
+		h, err := strconv.Atoi(morningHour)
+		if err != nil {
+			return ""
+		}
+		return strconv.Itoa(h + 12)
+	}
 	ms := map[string]string{
 		"Jan": "01",
 		"Feb": "02",
@@ -113,10 +120,21 @@ func formatDateHour(dt, hour string) string {
 		"Nov": "11",
 		"Dec": "12",
 	}
+	var hr, min string
 	s := strings.Split(dt, " ")
-	day, mon := s[0], ms[s[1]]
+	mon, day := ms[s[0]], s[1]
+
+	s = strings.Split(hour, " ")
+	clockTime, cat := s[0], s[1]
+	if cat == "AM" {
+		s = strings.Split(clockTime, ":")
+		hr, min = s[0], s[1]
+	} else {
+		s = strings.Split(clockTime, ":")
+		hr, min = afternoonHour(s[0]), s[1]
+	}
 	year, _, _ := time.Now().Date()
-	return strconv.Itoa(year) + "-" + mon + "-" + day + "T" + hour + ":00"
+	return strconv.Itoa(year) + "-" + mon + "-" + day + "T" + hr + ":" + min + ":00"
 }
 
 func formatDollarSignPrice(price string) float64 {
