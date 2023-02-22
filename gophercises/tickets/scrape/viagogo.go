@@ -197,6 +197,10 @@ func (s *Scraper) GetStarHubAllEvents() []Event {
 			continue
 		}
 		for _, e := range es {
+			if e.Tickets[0].Price == 0 {
+				// no ticket left
+				continue
+			}
 			u := e.Tickets[0].BuyUrl
 			fullUrl := s.joinPath(s.baseUrl, u)
 			e.Tickets[0].BuyUrl = fullUrl

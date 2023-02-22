@@ -44,7 +44,7 @@ func main() {
 		}
 	} else {
 		log.Println("loading from local storage ...")
-		events, err = scrape.LoadJsonToEvents("scrape/event.json")
+		events, err = scrape.LoadJsonToEvents("scrape/viagogo_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}

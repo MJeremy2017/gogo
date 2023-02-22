@@ -10,20 +10,19 @@ import (
 	"tickets/scrape"
 )
 
-func TestA(t *testing.T) {
-	events, err := scrape.LoadJsonToEvents("event.json")
+func TestViaGogo(t *testing.T) {
+	events, err := scrape.LoadJsonToEvents("viagogo_event.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println(events[0])
 }
 
-// TODO: debug the date errors
 func TestStarHub(t *testing.T) {
-	//s := scrape.NewScraper("https://www.stubhub.com/")
-	//events := s.GetStarHubAllEvents()
-	//p := "starthub_event.json"
-	//scrape.SaveEventsToJson(events, p)
+	s := scrape.NewScraper("https://www.stubhub.com/")
+	events := s.GetStarHubAllEvents()
+	p := "starhub_event.json"
+	scrape.SaveEventsToJson(events, p)
 }
 
 func getAndSaveResponse(url string) {
