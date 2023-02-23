@@ -44,10 +44,13 @@ func main() {
 		}
 	} else {
 		log.Println("loading from local storage ...")
-		events, err = scrape.LoadJsonToEvents("scrape/starhub_event.json")
+		// TODO combine starthub and viagogo events
+		startHubEvents, err := scrape.LoadJsonToEvents("scrape/starhub_event.json")
+		viaGogoEvents, err := scrape.LoadJsonToEvents("scrape/viagogo_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}
+		events = combineAndFilterEvents(startHubEvents, viaGogoEvents)
 	}
 	combinedEvents := NewCombinedEvents(events)
 
@@ -58,10 +61,28 @@ func main() {
 	log.Fatal(http.ListenAndServe(Address, mux))
 }
 
+func combineAndFilterEvents(eventList ...[]scrape.Event) []scrape.Event {
+	var res []scrape.Event
+	for _, events := range eventList {
+		for _, event := range events {
+			if len(event.Tickets) == 0 || event.Tickets[0].Price == 0 {
+				continue
+			}
+			res = append(res, event)
+		}
+	}
+	return res
+}
+
 func scrapeViagogoTicket() ([]scrape.Event, error) {
 	p := "scrape/viagogo_event.json"
 	s := scrape.NewScraper("https://www.viagogo.com")
 	events := s.GetViagogoAllEvents()
 	scrape.SaveEventsToJson(events, p)
 	return events, nil
+}
+
+func scrapeStarHubTicket() ([]scrape.Event, error) {
+	// TODO figure missing events taylor swift
+	return nil, nil
 }
