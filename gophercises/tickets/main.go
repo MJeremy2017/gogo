@@ -35,22 +35,29 @@ func main() {
 	flag.Parse()
 
 	var events []scrape.Event
-	var err error
 	if from == "remote" {
 		log.Println("scraping from viagogo ...")
-		events, err = scrapeViagogoTicket()
+		starHubEvents, err := scrapeSiteEvents("https://www.starhub.com", "scrape/starhub_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}
+		viaGogoEvents, err := scrapeSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+		events = combineAndFilterEvents(starHubEvents, viaGogoEvents)
 	} else {
 		log.Println("loading from local storage ...")
-		// TODO combine starthub and viagogo events
-		startHubEvents, err := scrape.LoadJsonToEvents("scrape/starhub_event.json")
+		starHubEvents, err := scrape.LoadJsonToEvents("scrape/starhub_event.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		viaGogoEvents, err := scrape.LoadJsonToEvents("scrape/viagogo_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}
-		events = combineAndFilterEvents(startHubEvents, viaGogoEvents)
+		events = combineAndFilterEvents(starHubEvents, viaGogoEvents)
 	}
 	combinedEvents := NewCombinedEvents(events)
 
@@ -74,15 +81,9 @@ func combineAndFilterEvents(eventList ...[]scrape.Event) []scrape.Event {
 	return res
 }
 
-func scrapeViagogoTicket() ([]scrape.Event, error) {
-	p := "scrape/viagogo_event.json"
-	s := scrape.NewScraper("https://www.viagogo.com")
-	events := s.GetViagogoAllEvents()
-	scrape.SaveEventsToJson(events, p)
+func scrapeSiteEvents(host, fp string) ([]scrape.Event, error) {
+	s := scrape.NewScraper(host)
+	events := s.GetStarHubAllEvents()
+	scrape.SaveEventsToJson(events, fp)
 	return events, nil
-}
-
-func scrapeStarHubTicket() ([]scrape.Event, error) {
-	// TODO figure missing events taylor swift
-	return nil, nil
 }
