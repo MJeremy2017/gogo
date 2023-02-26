@@ -33,7 +33,7 @@ func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 func main() {
 	flag.StringVar(&from, "from", "local", "download from web or from local")
 	flag.Parse()
-
+	// TODO load and refresh the storage in the background
 	var events []scrape.Event
 	if from == "remote" {
 		log.Println("scraping from viagogo ...")
