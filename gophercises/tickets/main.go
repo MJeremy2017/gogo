@@ -37,11 +37,11 @@ func main() {
 	var events []scrape.Event
 	if from == "remote" {
 		log.Println("scraping from remote ...")
-		starHubEvents, err := scrapeSiteEvents("https://www.starhub.com", "scrape/starhub_event.json")
+		starHubEvents, err := scrape.GetSiteEvents("https://www.starhub.com", "scrape/starhub_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}
-		viaGogoEvents, err := scrapeSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
+		viaGogoEvents, err := scrape.GetSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -79,16 +79,4 @@ func combineAndFilterEvents(eventList ...[]scrape.Event) []scrape.Event {
 		}
 	}
 	return res
-}
-
-func scrapeSiteEvents(host, fp string) ([]scrape.Event, error) {
-	var events []scrape.Event
-	s := scrape.NewScraper(host)
-	if host == "https://www.starhub.com" {
-		events = s.GetStarHubAllEvents()
-	} else {
-		events = s.GetViagogoAllEvents()
-	}
-	scrape.SaveEventsToJson(events, fp)
-	return events, nil
 }

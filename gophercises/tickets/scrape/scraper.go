@@ -288,6 +288,18 @@ func (s *Scraper) GetViagogoAllEvents() []Event {
 	return result
 }
 
+func GetSiteEvents(host, fp string) ([]Event, error) {
+	var events []Event
+	s := NewScraper(host)
+	if host == "https://www.stubhub.com" {
+		events = s.GetStarHubAllEvents()
+	} else {
+		events = s.GetViagogoAllEvents()
+	}
+	SaveEventsToJson(events, fp)
+	return events, nil
+}
+
 func display(e *Event) {
 	fmt.Printf("event name: %s, time: %s, venue %s, link: %s, ticket: %+v\n",
 		e.EventName, e.Time, e.Venue, e.TicketLink, e.Tickets)
