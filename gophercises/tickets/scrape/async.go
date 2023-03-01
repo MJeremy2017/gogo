@@ -1,17 +1,18 @@
 package scrape
 
 import (
+	"fmt"
 	"log"
 	"strings"
+	"time"
 )
 
 var events []Event
 
 func AsyncScrapeSiteEvents(host, fp string) {
 	// TODO infinite loop
-	chanEvents := make(chan []Event, 1)
+	doneChan := make(chan struct{})
 	for {
-		doneChan := make(chan bool, 1)
 		go func() {
 			s := NewScraper(host)
 			if strings.Contains(host, "stubhub") {
@@ -21,11 +22,11 @@ func AsyncScrapeSiteEvents(host, fp string) {
 			} else {
 				log.Fatalln("unexpected host", host)
 			}
-			chanEvents <- events
-			doneChan <- true
+			doneChan <- struct{}{}
 		}()
-		events = <-chanEvents
+		<-doneChan
 		SaveEventsToJson(events, fp)
-
+		fmt.Println("sleep for 5 seconds ...")
+		time.Sleep(time.Second * 5)
 	}
 }
