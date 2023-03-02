@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 	"tickets/scrape"
+	"time"
 )
 
 func TestViaGogo(t *testing.T) {
@@ -27,7 +28,20 @@ func TestStarHub(t *testing.T) {
 }
 
 func TestAsyncFetch(t *testing.T) {
-	scrape.AsyncScrapeSiteEvents("https://www.stubhub.com", "stubhub_event.json")
+	//scrape.AsyncScrapeSiteEvents("https://www.stubhub.com", "stubhub_event.json")
+	a := 1
+	go func() {
+		b := 1
+		for {
+			fmt.Println("inside", b)
+			b += 1
+			time.Sleep(time.Second)
+		}
+	}()
+
+	fmt.Println("outside", a)
+	time.Sleep(10 * time.Second)
+
 }
 
 func getAndSaveResponse(url string) {

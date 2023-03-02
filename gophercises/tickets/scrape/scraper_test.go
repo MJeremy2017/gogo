@@ -105,7 +105,7 @@ func TestScraper_FindLinks(t *testing.T) {
 			"BB": "/anirudh-tickets/category/135010106/",
 			"CC": "/anvil-tickets/category/710749/",
 		}
-		got, err := scraper.FindStarHubEventLinks("/concert-tickets/category/1/")
+		got, err := scraper.FindStubHubEventLinks("/concert-tickets/category/1/")
 		assert.NoError(t, err)
 		assert.Equal(t, want, got)
 	})

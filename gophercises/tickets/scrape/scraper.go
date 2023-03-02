@@ -6,6 +6,7 @@ import (
 	"github.com/gocolly/colly"
 	"log"
 	"strings"
+	"time"
 )
 
 const CategoryQuery = ".prinav a[href]"
@@ -58,7 +59,7 @@ func (s *Scraper) FindViaGogoLinks(path, query string) (map[string]string, error
 	return res, nil
 }
 
-func (s *Scraper) FindStarHubEventLinks(path string) (map[string]string, error) {
+func (s *Scraper) FindStubHubEventLinks(path string) (map[string]string, error) {
 	sc := struct {
 		CategoryGridLinks []struct {
 			ID   int    `json:"id"`
@@ -183,9 +184,9 @@ func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
 	return res, nil
 }
 
-func (s *Scraper) GetStarHubAllEvents() []Event {
+func (s *Scraper) GetStubHubAllEvents() []Event {
 	concertPath := "/concert-tickets/category/1/"
-	links, err := s.FindStarHubEventLinks(concertPath)
+	links, err := s.FindStubHubEventLinks(concertPath)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -292,12 +293,26 @@ func GetSiteEvents(host, fp string) ([]Event, error) {
 	var events []Event
 	s := NewScraper(host)
 	if host == "https://www.stubhub.com" {
-		events = s.GetStarHubAllEvents()
+		events = s.GetStubHubAllEvents()
 	} else {
 		events = s.GetViagogoAllEvents()
 	}
 	SaveEventsToJson(events, fp)
 	return events, nil
+}
+
+func AsyncGetSiteEvents(host, fp string) {
+	go func() {
+		for {
+			e, err := GetSiteEvents(host, fp)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("finished scraping %s with total events %d\n", host, len(e))
+			log.Println("sleep for 10 seconds")
+			time.Sleep(10 * time.Second)
+		}
+	}()
 }
 
 func display(e *Event) {
