@@ -58,9 +58,11 @@ func main() {
 			log.Fatal(err)
 		}
 		events = combineAndFilterEvents(starHubEvents, viaGogoEvents)
-		scrape.AsyncGetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
 	}
 	combinedEvents := NewCombinedEvents(events)
+
+	scrape.AsyncGetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
+	scrape.AsyncGetSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
 
 	mux := http.NewServeMux()
 	mux.Handle("/", combinedEvents)

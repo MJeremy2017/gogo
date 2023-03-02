@@ -305,6 +305,7 @@ func GetSiteEvents(host, fp string) ([]Event, error) {
 }
 
 func AsyncGetSiteEvents(host, fp string) {
+	nSec := 300
 	go func() {
 		for {
 			e, err := GetSiteEvents(host, fp)
@@ -312,8 +313,8 @@ func AsyncGetSiteEvents(host, fp string) {
 				log.Fatal(err)
 			}
 			log.Printf("finished scraping %s with total events %d\n", host, len(e))
-			log.Println("sleep for 10 seconds")
-			time.Sleep(10 * time.Second)
+			log.Printf("sleep for %d seconds\n", nSec)
+			time.Sleep(time.Duration(nSec) * time.Second)
 		}
 	}()
 }
