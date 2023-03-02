@@ -206,8 +206,11 @@ func (s *Scraper) GetStubHubAllEvents() []Event {
 			u := e.Tickets[0].BuyUrl
 			fullUrl := s.joinPath(s.baseUrl, u)
 			e.Tickets[0].BuyUrl = fullUrl
-			display(&e)
 			res = append(res, e)
+			if len(res)%20 == 0 {
+				log.Println("item count", len(res))
+				display(&e)
+			}
 		}
 	}
 	return res
