@@ -5,7 +5,9 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sync"
 	"tickets/scrape"
+	"time"
 )
 
 const Address = ":3000"
@@ -13,16 +15,28 @@ const TemplatePath = "template.html"
 
 var tmpl = template.Must(template.ParseFiles(TemplatePath))
 var from string
+var mu sync.Mutex
 
 type CombinedEvents struct {
 	ViagogoEvents []scrape.Event
 }
 
-func (c CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (c *CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	log.Println("refreshing events", len(c.ViagogoEvents))
 	err := tmpl.Execute(w, c.ViagogoEvents)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (c *CombinedEvents) UpdateEvents(e []scrape.Event) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	c.ViagogoEvents = scrape.SortEventTicketsByPrice(e)
 }
 
 func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
@@ -61,11 +75,27 @@ func main() {
 	}
 	combinedEvents := NewCombinedEvents(events)
 
-	scrape.AsyncGetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
-	scrape.AsyncGetSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
+	go func(ce *CombinedEvents) {
+		for {
+			time.Sleep(30 * time.Second)
+			stubHubEvents, err := scrape.GetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			viaGogoEvents, err := scrape.GetSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
+			if err != nil {
+				log.Fatal(err)
+			}
+			events = combineAndFilterEvents(stubHubEvents, viaGogoEvents)
+			log.Printf("Total events got %d sleep for %d seconds\n", len(events), 60)
+
+			ce.UpdateEvents(events)
+		}
+	}(&combinedEvents)
 
 	mux := http.NewServeMux()
-	mux.Handle("/", combinedEvents)
+	mux.Handle("/", &combinedEvents)
 
 	log.Println("listening on port", Address)
 	log.Fatal(http.ListenAndServe(Address, mux))
