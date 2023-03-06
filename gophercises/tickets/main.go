@@ -47,7 +47,7 @@ func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
 func main() {
 	flag.StringVar(&from, "from", "local", "download from web or from local")
 	flag.Parse()
-	// TODO load and refresh the storage in the background
+	// TODO clean up here
 	var events []scrape.Event
 	if from == "remote" {
 		log.Println("scraping from remote ...")
@@ -77,7 +77,7 @@ func main() {
 
 	go func(ce *CombinedEvents) {
 		for {
-			time.Sleep(30 * time.Second)
+			time.Sleep(60 * time.Second)
 			stubHubEvents, err := scrape.GetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
 			if err != nil {
 				log.Fatal(err)
