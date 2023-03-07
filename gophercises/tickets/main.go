@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,9 +11,9 @@ import (
 
 const Address = ":3000"
 const TemplatePath = "template.html"
+const sleepSec = 60
 
 var tmpl = template.Must(template.ParseFiles(TemplatePath))
-var from string
 var mu sync.Mutex
 
 type CombinedEvents struct {
@@ -45,39 +44,24 @@ func NewCombinedEvents(events []scrape.Event) CombinedEvents {
 }
 
 func main() {
-	flag.StringVar(&from, "from", "local", "download from web or from local")
-	flag.Parse()
-	// TODO clean up here
 	var events []scrape.Event
-	if from == "remote" {
-		log.Println("scraping from remote ...")
-		starHubEvents, err := scrape.GetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
-		if err != nil {
-			log.Fatal(err)
-		}
-		viaGogoEvents, err := scrape.GetSiteEvents("https://www.viagogo.com", "scrape/viagogo_event.json")
-		if err != nil {
-			log.Fatal(err)
-		}
-		events = combineAndFilterEvents(starHubEvents, viaGogoEvents)
-	} else {
-		log.Println("loading from local storage ...")
-		starHubEvents, err := scrape.LoadJsonToEvents("scrape/stubhub_event.json")
-		if err != nil {
-			log.Fatal(err)
-		}
 
-		viaGogoEvents, err := scrape.LoadJsonToEvents("scrape/viagogo_event.json")
-		if err != nil {
-			log.Fatal(err)
-		}
-		events = combineAndFilterEvents(starHubEvents, viaGogoEvents)
+	log.Println("loading from local storage ...")
+	stubHubEvents, err := scrape.LoadJsonToEvents("scrape/stubhub_event.json")
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	viaGogoEvents, err := scrape.LoadJsonToEvents("scrape/viagogo_event.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	events = combineAndFilterEvents(stubHubEvents, viaGogoEvents)
 	combinedEvents := NewCombinedEvents(events)
 
 	go func(ce *CombinedEvents) {
 		for {
-			time.Sleep(60 * time.Second)
+			time.Sleep(time.Duration(sleepSec) * time.Second)
 			stubHubEvents, err := scrape.GetSiteEvents("https://www.stubhub.com", "scrape/stubhub_event.json")
 			if err != nil {
 				log.Fatal(err)
@@ -88,7 +72,7 @@ func main() {
 				log.Fatal(err)
 			}
 			events = combineAndFilterEvents(stubHubEvents, viaGogoEvents)
-			log.Printf("Total events got %d sleep for %d seconds\n", len(events), 60)
+			log.Printf("Total events got %d sleep for %d seconds\n", len(events), sleepSec)
 
 			ce.UpdateEvents(events)
 		}
