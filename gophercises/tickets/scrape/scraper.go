@@ -6,7 +6,6 @@ import (
 	"github.com/gocolly/colly"
 	"log"
 	"strings"
-	"time"
 )
 
 const CategoryQuery = ".prinav a[href]"
@@ -178,7 +177,7 @@ func (s *Scraper) GetStarHubEvents(path string) ([]Event, error) {
 					BuyUrl: getStringFromMap(it, "url"),
 				},
 			},
-			Platform: "StarHub",
+			Platform: "StubHub",
 		})
 	}
 	return res, nil
@@ -208,7 +207,7 @@ func (s *Scraper) GetStubHubAllEvents() []Event {
 			e.Tickets[0].BuyUrl = fullUrl
 			res = append(res, e)
 			if len(res)%20 == 0 {
-				log.Println("item count", len(res))
+				log.Println("processed item", len(res))
 				display(&e)
 			}
 		}
@@ -302,21 +301,6 @@ func GetSiteEvents(host, fp string) ([]Event, error) {
 	}
 	SaveEventsToJson(events, fp)
 	return events, nil
-}
-
-func AsyncGetSiteEvents(host, fp string) {
-	nSec := 300
-	go func() {
-		for {
-			e, err := GetSiteEvents(host, fp)
-			if err != nil {
-				log.Fatal(err)
-			}
-			log.Printf("finished scraping %s with total events %d\n", host, len(e))
-			log.Printf("sleep for %d seconds\n", nSec)
-			time.Sleep(time.Duration(nSec) * time.Second)
-		}
-	}()
 }
 
 func display(e *Event) {
