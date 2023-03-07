@@ -18,15 +18,15 @@ var from string
 var mu sync.Mutex
 
 type CombinedEvents struct {
-	ViagogoEvents []scrape.Event
+	Events []scrape.Event
 }
 
 func (c *CombinedEvents) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	log.Println("refreshing events", len(c.ViagogoEvents))
-	err := tmpl.Execute(w, c.ViagogoEvents)
+	log.Println("refreshing events", len(c.Events))
+	err := tmpl.Execute(w, c.Events)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,12 +36,12 @@ func (c *CombinedEvents) UpdateEvents(e []scrape.Event) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	c.ViagogoEvents = scrape.SortEventTicketsByPrice(e)
+	c.Events = scrape.SortEventTicketsByPrice(e)
 }
 
-func NewCombinedEvents(viagogoEvents []scrape.Event) CombinedEvents {
-	res := scrape.SortEventTicketsByPrice(viagogoEvents)
-	return CombinedEvents{ViagogoEvents: res}
+func NewCombinedEvents(events []scrape.Event) CombinedEvents {
+	res := scrape.SortEventTicketsByPrice(events)
+	return CombinedEvents{Events: res}
 }
 
 func main() {
